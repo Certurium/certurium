@@ -8,6 +8,8 @@
 #include <arith_uint256.h>
 #include <chain.h>
 #include <chainparams.h>
+#include <checkpoints.h>
+#include <checkpointsync.h>
 #include <checkqueue.h>
 #include <consensus/amount.h>
 #include <consensus/consensus.h>
@@ -2494,10 +2496,13 @@ void CChainState::UpdateTip(const CBlockIndex* pindexNew)
         }
     }
     UpdateTipLog(coins_tip, pindexNew, m_params, __func__, "", warning_messages.original);
+    
+    if (pindexBestHeader->pprev)
+        CheckSyncCheckpoint(pindexBestHeader->GetBlockHash(), pindexBestHeader->pprev);
+
 }
 
 /** Disconnect m_chain's tip.
-  * After calling, the mempool will be in an inconsistent state, with
   * transactions from disconnected blocks being added to disconnectpool.  You
   * should make the mempool consistent again by calling MaybeUpdateMempoolForReorg.
   * with cs_main held.
@@ -3401,6 +3406,11 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
                                  strprintf("rejected nVersion=0x%08x block", block.nVersion));
     }
 
+    // Check that the block satisfies synchronized checkpoint
+    if (!IsInitialBlockDownload() && !CheckSyncCheckpoint(block.GetHash(), pindexPrev))
+        return state.Invalid(error("%s : rejected by synchronized checkpoint", __func__),
+                             REJECT_OBSOLETE, "bad-version");
+
     return true;
 }
 
@@ -3691,6 +3701,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, Block
 
     CheckBlockIndex();
 
+    AcceptPendingSyncCheckpoint();
+
     return true;
 }
 
@@ -3729,6 +3741,10 @@ bool ChainstateManager::ProcessNewBlock(const CChainParams& chainparams, const s
     if (!ActiveChainstate().ActivateBestChain(state, block)) {
         return error("%s: ActivateBestChain failed (%s)", __func__, state.ToString());
     }
+
+    // If responsible for sync-checkpoint send it
+    if (!CSyncCheckpoint::strMasterPrivKey.empty() && (int)gArgs.GetArg("-checkpointdepth", -1) >= 0)
+        SendSyncCheckpoint(AutoSelectSyncCheckpoint());
 
     return true;
 }
