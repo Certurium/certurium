@@ -15,6 +15,8 @@
 #include <blockfilter.h>
 #include <chain.h>
 #include <chainparams.h>
+#include <checkpoints.h>
+#include <checkpointsync.h>
 #include <compat/sanity.h>
 #include <consensus/validation.h>
 #include <fs.h>
@@ -1165,6 +1167,11 @@ bool AppInitParameterInteraction()
 
     nMaxTipAge = gArgs.GetArg("-maxtipage", DEFAULT_MAX_TIP_AGE);
 
+    if (gArgs.IsArgSet("-checkpointkey")) // Checkpoint master priv key
+    {
+        if (!SetCheckpointPrivKey(gArgs.GetArg("-checkpointkey", "")))
+            return InitError(_("Unable to sign checkpoint, wrong checkpointkey?").translated);
+    }
     return true;
 }
 
@@ -1639,6 +1646,12 @@ bool AppInitMain(NodeContext& node)
                     strLoadError = _("Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain").translated;
                     break;
                 }
+            }
+
+            uiInterface.InitMessage(_("Checking ACP ...").translated);
+            if (!CheckCheckpointPubKey()) {
+                strLoadError = _("Checking ACP pubkey failed").translated;
+                break;
             }
 
             try {
