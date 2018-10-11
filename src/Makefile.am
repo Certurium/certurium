@@ -382,6 +382,8 @@ crypto_libbitcoin_crypto_base_a_SOURCES = \
   crypto/hmac_sha512.h \
   crypto/poly1305.h \
   crypto/poly1305.cpp \
+  crypto/neoscrypt.h \
+  crypto/neoscrypt.c \
   crypto/ripemd160.cpp \
   crypto/ripemd160.h \
   crypto/sha1.cpp \
@@ -394,7 +396,9 @@ crypto_libbitcoin_crypto_base_a_SOURCES = \
   crypto/siphash.h
 
 if USE_ASM
-crypto_libbitcoin_crypto_base_a_SOURCES += crypto/sha256_sse4.cpp
+crypto_libbitcoin_crypto_base_a_SOURCES += \
+  crypto/neoscrypt_asm.S \
+  crypto/sha256_sse4.cpp
 endif
 
 crypto_libbitcoin_crypto_sse41_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)

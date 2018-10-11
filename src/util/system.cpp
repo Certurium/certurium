@@ -75,6 +75,8 @@ const char * const BITCOIN_CONF_FILENAME = "bitcoin.conf";
 
 ArgsManager gArgs;
 
+unsigned int nNeoScryptOptions = 0;
+
 /** A map that contains all the currently held directory locks. After
  * successful locking, these will be held here until the global destructor
  * cleans them up and thus automatically unlocks them, or ReleaseDirectoryLocks

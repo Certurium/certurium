@@ -940,6 +940,10 @@ bool AppInitParameterInteraction()
     const CChainParams& chainparams = Params();
     // ********************************************************* Step 2: parameter interactions
 
+#if defined (USE_ASM)
+    nNeoScryptOptions |= 0x1000;
+#endif
+
     // also see: InitParameterInteraction()
 
     // Warn if network-specific options (-addnode, -connect, etc) are
