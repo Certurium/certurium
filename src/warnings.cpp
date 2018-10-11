@@ -6,6 +6,7 @@
 #include <warnings.h>
 
 #include <sync.h>
+#include <checkpointsync.h>
 #include <util/system.h>
 #include <util/translation.h>
 
@@ -52,6 +53,13 @@ std::string GetWarnings(bool verbose)
         warnings_verbose = _("This is a pre-release test build - use at your own risk - do not use for mining or merchant applications").translated;
     }
 
+    // Checkpoint warning
+    if (strCheckpointWarning != "")
+    {
+        warnings_concise = strCheckpointWarning;
+        warnings_verbose += (warnings_verbose.empty() ? "" : warning_separator) + strCheckpointWarning;
+    }
+
     // Misc warnings like out of disk space and clock is wrong
     if (strMiscWarning != "") {
         warnings_concise = strMiscWarning;
@@ -64,6 +72,13 @@ std::string GetWarnings(bool verbose)
     } else if (fLargeWorkInvalidChainFound) {
         warnings_concise = "Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.";
         warnings_verbose += (warnings_verbose.empty() ? "" : warning_separator) + _("Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.").translated;
+    }
+
+    // If detected invalid checkpoint enter safe mode
+    if (hashInvalidCheckpoint != ArithToUint256(arith_uint256(0)))
+    {
+        warnings_concise = "Warning: Inconsistent checkpoint found! Stop enforcing checkpoints and notify developers to resolve the issue.";
+        warnings_verbose += (warnings_verbose.empty() ? "" : warning_separator) + _("Warning: Inconsistent checkpoint found! Stop enforcing checkpoints and notify developers to resolve the issue.").translated;
     }
 
     if (verbose) return warnings_verbose;
