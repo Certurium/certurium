@@ -7,6 +7,7 @@
 
 #include <sync.h>
 #include <util/string.h>
+#include <checkpointsync.h>
 #include <util/system.h>
 #include <util/translation.h>
 
@@ -54,6 +55,13 @@ bilingual_str GetWarnings(bool verbose)
         warnings_verbose.emplace_back(warnings_concise);
     }
 
+    // Checkpoint warning
+    if (strCheckpointWarning != "")
+    {
+        warnings_concise = _(strCheckpointWarning.c_str());
+        warnings_verbose.emplace_back(warnings_concise);
+    }
+
     // Misc warnings like out of disk space and clock is wrong
     if (!g_misc_warnings.empty()) {
         warnings_concise = g_misc_warnings;
@@ -65,6 +73,13 @@ bilingual_str GetWarnings(bool verbose)
         warnings_verbose.emplace_back(warnings_concise);
     } else if (fLargeWorkInvalidChainFound) {
         warnings_concise = _("Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.");
+        warnings_verbose.emplace_back(warnings_concise);
+    }
+
+    // If detected invalid checkpoint enter safe mode
+    if (hashInvalidCheckpoint != ArithToUint256(arith_uint256(0)))
+    {
+        warnings_concise = _("Warning: Inconsistent checkpoint found! Stop enforcing checkpoints and notify developers to resolve the issue.");
         warnings_verbose.emplace_back(warnings_concise);
     }
 

@@ -260,6 +260,13 @@ extern const char* CFCHECKPT;
  * @since protocol version 70016 as described by BIP 339.
  */
 extern const char* WTXIDRELAY;
+
+extern const char *BLOCKTXN;
+/**
+ * Contains a checkpoint braodcasted by a central checkpointing node
+ * @since protocol version 61000
+ */
+extern const char *CHECKPOINT;
 }; // namespace NetMsgType
 
 /* Get a vector of all valid message types (see above) */
