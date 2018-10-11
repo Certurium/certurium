@@ -38,6 +38,7 @@
 // Application startup time (used for uptime calculation)
 int64_t GetStartupTime();
 
+extern unsigned int nNeoScryptOptions;
 extern const char * const BITCOIN_CONF_FILENAME;
 
 void SetupEnvironment();
