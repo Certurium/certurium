@@ -15,6 +15,8 @@
 #include <blockfilter.h>
 #include <chain.h>
 #include <chainparams.h>
+#include <checkpoints.h>
+#include <checkpointsync.h>
 #include <compat/sanity.h>
 #include <deploymentstatus.h>
 #include <fs.h>
@@ -1009,6 +1011,11 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         return InitError(_("No proxy server specified. Use -proxy=<ip> or -proxy=<ip:port>."));
     }
 
+    if (gArgs.IsArgSet("-checkpointkey")) // Checkpoint master priv key
+    {
+        if (!SetCheckpointPrivKey(gArgs.GetArg("-checkpointkey", "")))
+            return InitError(_("Unable to sign checkpoint, wrong checkpointkey?").translated);
+    }
     return true;
 }
 
@@ -1474,6 +1481,12 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
             }
 
             bool failed_verification = false;
+
+            uiInterface.InitMessage(_("Checking ACP ...").translated);
+            if (!CheckCheckpointPubKey()) {
+                strLoadError = _("Checking ACP pubkey failed").translated;
+                break;
+            }
 
             try {
                 LOCK(cs_main);

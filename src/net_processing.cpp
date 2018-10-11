@@ -10,6 +10,7 @@
 #include <blockencodings.h>
 #include <blockfilter.h>
 #include <chainparams.h>
+#include <checkpointsync.h>
 #include <consensus/validation.h>
 #include <deploymentstatus.h>
 #include <hash.h>
@@ -2624,6 +2625,13 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             m_addrman.Good(pfrom.addr);
         }
 
+        // Relay sync-checkpoint
+        {
+            LOCK(cs_hashSyncCheckpoint);
+            if (!checkpointMessage.IsNull())
+                checkpointMessage.RelayTo(pfrom);
+        }
+
         std::string remoteAddr;
         if (fLogIPs)
             remoteAddr = ", peeraddr=" + pfrom.addr.ToString();
@@ -3844,6 +3852,21 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             peer->m_ping_nonce_sent = 0;
         }
         return;
+    }
+
+    if (msg_type == NetMsgType::CHECKPOINT) {
+        CSyncCheckpoint checkpoint;
+        vRecv >> checkpoint;
+
+        if (checkpoint.ProcessSyncCheckpoint())
+        {
+            // Relay checkpoint
+            pfrom->hashCheckpointKnown = checkpoint.hashCheckpoint;
+            g_connman->ForEachNode([checkpoint](CNode* pnode) {
+                checkpoint.RelayTo(pnode);
+            });
+        }
+        return true;
     }
 
     if (msg_type == NetMsgType::FILTERLOAD) {
