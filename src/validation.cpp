@@ -3847,7 +3847,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, Block
 
     CheckBlockIndex(chainparams.GetConsensus());
 
-    AcceptPendingSyncCheckpoint();
+    if (!IsInitialBlockDownload())
+        AcceptPendingSyncCheckpoint();
 
     return true;
 }
