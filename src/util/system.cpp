@@ -655,7 +655,7 @@ fs::path GetDefaultDataDir()
     // Unix-like: ~/.bitcoin
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Bitcoin";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Certurium";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -664,11 +664,11 @@ fs::path GetDefaultDataDir()
     else
         pathRet = fs::path(pszHome);
 #ifdef MAC_OSX
-    // macOS
-    return pathRet / "Library/Application Support/Bitcoin";
+    // Mac
+    return pathRet / "Library/Application Support/Certurium";
 #else
-    // Unix-like
-    return pathRet / ".bitcoin";
+    // Unix
+    return pathRet / ".certurium";
 #endif
 #endif
 }
