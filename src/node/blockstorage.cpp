@@ -24,6 +24,8 @@
 #include <map>
 #include <unordered_map>
 
+extern uint256 hashSyncCheckpoint;
+
 namespace node {
 std::atomic_bool fImporting(false);
 std::atomic_bool fReindex(false);
@@ -341,6 +343,12 @@ bool BlockManager::LoadBlockIndexDB(const Consensus::Params& consensus_params)
             break;
         }
     }
+
+    // Load hashSyncCheckpoint
+    if (!m_block_tree_db->ReadSyncCheckpoint(hashSyncCheckpoint))
+         LogPrintf("LoadBlockIndexDB(): synchronized checkpoint not read\n");
+    else
+         LogPrintf("LoadBlockIndexDB(): synchronized checkpoint %s\n", hashSyncCheckpoint.ToString().c_str());
 
     // Check presence of blk files
     LogPrintf("Checking all blk files are present...\n");
@@ -728,7 +736,7 @@ bool ReadBlockFromDisk(CBlock& block, const FlatFilePos& pos, const Consensus::P
     }
 
     // Check the header
-    if (!CheckProofOfWork(block.GetHash(), block.nBits, consensusParams)) {
+    if (!CheckProofOfWork(block.GetPoWHash(), block.nBits, consensusParams)) {
         return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
     }
 

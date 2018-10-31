@@ -416,6 +416,8 @@ public:
     const uint64_t nKeyedNetGroup;
     std::atomic_bool fPauseRecv{false};
     std::atomic_bool fPauseSend{false};
+    
+    uint256 hashCheckpointKnown;
 
     bool IsOutboundOrBlockRelayConn() const {
         switch (m_conn_type) {
@@ -858,6 +860,22 @@ public:
     CSipHasher GetDeterministicRandomizer(uint64_t id) const;
 
     unsigned int GetReceiveFloodSize() const;
+    
+    uint256 hashContinue;
+    std::atomic<int> nStartingHeight{-1};
+
+    // flood relay
+    std::vector<CAddress> vAddrToSend;
+    std::unique_ptr<CRollingBloomFilter> m_addr_known{nullptr};
+    bool fGetAddr{false};
+    std::chrono::microseconds m_next_addr_send GUARDED_BY(cs_sendProcessing){0};
+    std::chrono::microseconds m_next_local_addr_send GUARDED_BY(cs_sendProcessing){0};
+
+    // // List of block ids we still have announce.
+    // // There is no final sorting before sending, as they are always sent immediately
+    // // and in the order requested.
+    std::vector<uint256> vInventoryBlockToSend GUARDED_BY(cs_inventory);
+    Mutex cs_inventory;
 
     void WakeMessageHandler() EXCLUSIVE_LOCKS_REQUIRED(!mutexMsgProc);
 

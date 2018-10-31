@@ -1,25 +1,23 @@
-Bitcoin Core integration/staging tree
+Certurium Core integration/staging tree
 =====================================
 
-https://bitcoincore.org
+https://certurium.com
 
-For an immediately usable, binary version of the Bitcoin Core software, see
-https://bitcoincore.org/en/download/.
+What is Certurium?
+----------------
 
-What is Bitcoin Core?
----------------------
-
-Bitcoin Core connects to the Bitcoin peer-to-peer network to download and fully
-validate blocks and transactions. It also includes a wallet and graphical user
-interface, which can be optionally built.
+Certurium is an experimental digital currency that enables instant payments to
+anyone, anywhere in the world. Certurium uses peer-to-peer technology to operate
+with no central authority: managing transactions and issuing money are carried
+out collectively by the network. Certurium Core is the name of open source
+software which enables the use of this currency.
 
 Further information about Bitcoin Core is available in the [doc folder](/doc).
 
 License
 -------
 
-Bitcoin Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
-information or see https://opensource.org/licenses/MIT.
+Certurium is a fork of Bitcoin Core and inherits the terms of the MIT license. See COPYING for more information or see https://opensource.org/licenses/MIT.
 
 Development Process
 -------------------
