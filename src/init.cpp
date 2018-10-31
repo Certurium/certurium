@@ -14,6 +14,7 @@
 #include <blockfilter.h>
 #include <chain.h>
 #include <chainparams.h>
+#include <checkpointsync.h>
 #include <compat/sanity.h>
 #include <consensus/amount.h>
 #include <deploymentstatus.h>
@@ -116,6 +117,8 @@ using node::nPruneTarget;
 
 static const bool DEFAULT_PROXYRANDOMIZE = true;
 static const bool DEFAULT_REST_ENABLE = false;
+
+std::unique_ptr<CConnman> g_connman;
 
 #ifdef WIN32
 // Win32 LevelDB doesn't use filedescriptors, and the ones used for
@@ -439,6 +442,7 @@ void SetupServerArgs(ArgsManager& argsman)
                  strprintf("Maintain an index of compact filters by block (default: %s, values: %s).", DEFAULT_BLOCKFILTERINDEX, ListBlockFilterTypes()) +
                  " If <type> is not supplied or if <type> = 1, indexes for all known types are enabled.",
                  ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-checkpointkey", "ACP private key", 0, OptionsCategory::OPTIONS);
 
     argsman.AddArg("-addnode=<ip>", strprintf("Add a node to connect to and attempt to keep the connection open (see the addnode RPC help for more info). This option can be specified multiple times to add multiple nodes; connections are limited to %u at a time and are counted separately from the -maxconnections limit.", MAX_ADDNODE_CONNECTIONS), ArgsManager::ALLOW_ANY | ArgsManager::NETWORK_ONLY, OptionsCategory::CONNECTION);
     argsman.AddArg("-asmap=<file>", strprintf("Specify asn mapping used for bucketing of the peers (default: %s). Relative paths will be prefixed by the net-specific datadir location.", DEFAULT_ASMAP_FILENAME), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
@@ -797,6 +801,10 @@ bool AppInitParameterInteraction(const ArgsManager& args)
     const CChainParams& chainparams = Params();
     // ********************************************************* Step 2: parameter interactions
 
+#if defined (USE_ASM)
+    nNeoScryptOptions |= 0x1000;
+#endif
+
     // also see: InitParameterInteraction()
 
     // Error if network-specific options (-addnode, -connect, etc) are
@@ -1027,6 +1035,12 @@ bool AppInitParameterInteraction(const ArgsManager& args)
 
     if (args.IsArgSet("-proxy") && args.GetArg("-proxy", "").empty()) {
         return InitError(_("No proxy server specified. Use -proxy=<ip> or -proxy=<ip:port>."));
+    }
+
+    if (gArgs.IsArgSet("-checkpointkey")) // Checkpoint master priv key
+    {
+        if (!SetCheckpointPrivKey(gArgs.GetArg("-checkpointkey", "")))
+            return InitError(_("Unable to sign checkpoint, wrong checkpointkey?"));
     }
 
 #if defined(USE_SYSCALL_SANDBOX)
@@ -1261,7 +1275,8 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     node.banman = std::make_unique<BanMan>(gArgs.GetDataDirNet() / "banlist", &uiInterface, args.GetIntArg("-bantime", DEFAULT_MISBEHAVING_BANTIME));
     assert(!node.connman);
     node.connman = std::make_unique<CConnman>(GetRand(std::numeric_limits<uint64_t>::max()), GetRand(std::numeric_limits<uint64_t>::max()), *node.addrman, args.GetBoolArg("-networkactive", true));
-
+    g_connman = std::unique_ptr<CConnman>(node.connman.get());
+    
     assert(!node.fee_estimator);
     // Don't initialize fee estimation with old data if we don't relay transactions,
     // as they would never get updated.
@@ -1473,6 +1488,13 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
             }
         } else {
             std::optional<ChainstateLoadVerifyError> maybe_verify_error;
+
+            uiInterface.InitMessage(_("Checking ACP ...").translated);
+            if (!CheckCheckpointPubKey(chainman.ActiveChainstate())) {
+                strLoadError = _("Checking ACP pubkey failed");
+                break;
+            }
+
             try {
                 uiInterface.InitMessage(_("Verifying blocks…").translated);
                 auto check_blocks = args.GetIntArg("-checkblocks", DEFAULT_CHECKBLOCKS);

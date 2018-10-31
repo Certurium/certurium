@@ -8,10 +8,12 @@
 #include <blockfilter.h>
 #include <chain.h>
 #include <chainparams.h>
+#include <checkpointsync.h>
 #include <coins.h>
 #include <consensus/amount.h>
 #include <consensus/params.h>
 #include <consensus/validation.h>
+#include <script/signingprovider.h>
 #include <core_io.h>
 #include <deploymentinfo.h>
 #include <deploymentstatus.h>
@@ -84,7 +86,7 @@ double GetDifficulty(const CBlockIndex* blockindex)
 
     int nShift = (blockindex->nBits >> 24) & 0xff;
     double dDiff =
-        (double)0x0000ffff / (double)(blockindex->nBits & 0x00ffffff);
+        (double)0x007fffff / (double)(blockindex->nBits & 0x00ffffff);
 
     while (nShift < 29)
     {
@@ -1097,6 +1099,92 @@ static RPCHelpMan getblock()
     }
 
     return blockToJSON(block, tip, pblockindex, tx_verbosity);
+},
+    };
+}
+
+// RPC commands related to sync checkpoints
+// get information of sync-checkpoint (first introduced in ppcoin)
+static RPCHelpMan getcheckpoint()
+{
+    return RPCHelpMan{"getcheckpoint", "Show info of synchronized checkpoint.\n",
+                {},
+                RPCResult { RPCResult::Type::OBJ, "", "", {
+                {RPCResult::Type::STR_HEX, "synccheckpoint", "The hash of the synchronization checkpoint"},
+                {RPCResult::Type::NUM, "height", "The height of the checkpoint in blocks"},
+                {RPCResult::Type::NUM, "timestamp", "The timestamp of the checkpoint"},
+                {RPCResult::Type::BOOL, "checkpointnmaster", "Checkpoint key was used"},
+            } },
+                RPCExamples{
+                    HelpExampleCli("getcheckpoint", "")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+     UniValue result(UniValue::VOBJ);
+    CBlockIndex* pindexCheckpoint;
+
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(cs_main);
+
+    result.pushKV("synccheckpoint", hashSyncCheckpoint.ToString().c_str());
+    if (chainman.BlockIndex().count(hashSyncCheckpoint))
+    {
+        pindexCheckpoint = chainman.BlockIndex()[hashSyncCheckpoint];
+        result.pushKV("height", pindexCheckpoint->nHeight);
+        result.pushKV("timestamp", (boost::int64_t) pindexCheckpoint->GetBlockTime());
+    }
+    
+    result.pushKV("checkpointmaster", gArgs.IsArgSet("-checkpointkey"));
+
+    return result;
+},
+    };
+   
+}
+
+static RPCHelpMan sendcheckpoint()
+{
+    return RPCHelpMan{"sendcheckpoint", "Send a synchronized checkpoint.\n",
+                {
+                    {"blockhash", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The blockhash of the checkpoint" }
+                },
+                RPCResult { RPCResult::Type::OBJ, "", "", {
+                {RPCResult::Type::STR_HEX, "synccheckpoint", "The hash of the synchronization checkpoint"},
+                {RPCResult::Type::NUM, "height", "The height of the checkpoint in blocks"},
+                {RPCResult::Type::NUM, "timestamp", "The timestamp of the checkpoint"},
+                {RPCResult::Type::BOOL, "checkpointnmaster", "Checkpoint key was used"},
+            } },
+                RPCExamples{
+                    HelpExampleCli("sendcheckpoint", "9f86d081884c7d659a2feaa0c55ad014")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    if (!gArgs.IsArgSet("-checkpointkey") || CSyncCheckpoint::strMasterPrivKey.empty())
+        throw JSONRPCError(RPC_INVALID_REQUEST, "Not a checkpointmaster node, first set checkpointkey in configuration and restart client.");
+
+    std::string strHash = request.params[0].get_str();
+    uint256 hash = uint256S(strHash);
+
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(cs_main);
+
+    if (!SendSyncCheckpoint(hash, g_connman.get(), chainman))
+            throw JSONRPCError(RPC_INTERNAL_ERROR, "Could not find block with at least the specified timestamp.");
+
+    UniValue result(UniValue::VOBJ);
+    CBlockIndex* pindexCheckpoint;
+
+    result.pushKV("synccheckpoint", hashSyncCheckpoint.ToString().c_str());
+    if (chainman.BlockIndex().count(hashSyncCheckpoint))
+    {
+        pindexCheckpoint = chainman.BlockIndex()[hashSyncCheckpoint];
+        result.pushKV("height", pindexCheckpoint->nHeight);
+        result.pushKV("timestamp", (boost::int64_t) pindexCheckpoint->GetBlockTime());
+    }
+    
+    result.pushKV("checkpointmaster", gArgs.IsArgSet("-checkpointkey"));
+
+    return result;
 },
     };
 }
@@ -2840,6 +2928,8 @@ static const CRPCCommand commands[] =
     { "blockchain",         &getblockfrompeer,                   },
     { "blockchain",         &getblockhash,                       },
     { "blockchain",         &getblockheader,                     },
+    { "blockchain",         &getcheckpoint,                      },
+    { "blockchain",         &sendcheckpoint,                     },
     { "blockchain",         &getchaintips,                       },
     { "blockchain",         &getdifficulty,                      },
     { "blockchain",         &getdeploymentinfo,                  },
