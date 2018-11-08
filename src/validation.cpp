@@ -3457,11 +3457,6 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
             return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, strprintf("bad-version(0x%08x)", block.nVersion),
                                  strprintf("rejected nVersion=0x%08x block", block.nVersion));
 
-    // Check that the block satisfies synchronized checkpoint
-    if (!IsInitialBlockDownload() && !CheckSyncCheckpoint(block.GetHash(), pindexPrev))
-        return state.Invalid(error("%s : rejected by synchronized checkpoint", __func__),
-                             REJECT_OBSOLETE, "bad-version");
-
     return true;
 }
 
@@ -3747,6 +3742,14 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, Block
     if (!IsInitialBlockDownload() && m_chain.Tip() == pindex->pprev)
         GetMainSignals().NewPoWValidBlock(pindex, pblock);
 
+    // Check that the block satisfies synchronized checkpoint
+    if (!IsInitialBlockDownload() && !CheckSyncCheckpoint(pindex))
+    {
+        pindex->nStatus |= BLOCK_FAILED_VALID;
+        setDirtyBlockIndex.insert(pindex);
+        return error("%s: rejected by synchronized checkpoint", __func__);
+    }
+
     // Write block to history file
     if (fNewBlock) *fNewBlock = true;
     try {
@@ -3803,7 +3806,7 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
         return error("%s: ActivateBestChain failed (%s)", __func__, state.ToString());
 
     // If responsible for sync-checkpoint send it
-    if (!CSyncCheckpoint::strMasterPrivKey.empty() && (int)gArgs.GetArg("-checkpointdepth", -1) >= 0)
+    if (!CSyncCheckpoint::strMasterPrivKey.empty())
         SendSyncCheckpoint(AutoSelectSyncCheckpoint());
 
     return true;
