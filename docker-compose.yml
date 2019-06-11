@@ -1,0 +1,6 @@
+version: '3'
+services:
+    certurium:
+        build: .
+        ports:
+            - '13580:13580'
