@@ -23,7 +23,7 @@ To Build
 
 ```bash
 ./autogen.sh
-./configure -disable--shared
+./configure --disable-shared
 make
 make install # optional
 ```
