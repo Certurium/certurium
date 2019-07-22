@@ -5,8 +5,8 @@ RUN apt-get update -q && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean
-WORKDIR /platinum
-VOLUME /root/.platinumcoin/
-ADD . /platinum
-RUN ./autogen.sh && ./configure --with-gui=no --with-incompatible-bdb --enable-static --disable-shared && make -j4 && cp src/bitcoind /usr/local/bin/platinumd && cp src/bitcoin-cli /usr/local/bin/platinum-cli && make distclean
-CMD ["platinumd"]
+WORKDIR /argentumnt
+VOLUME /root/.argentumntcoin/
+ADD . /argentumnt
+RUN ./autogen.sh && ./configure --with-gui=no --with-incompatible-bdb --enable-static --disable-shared && make -j4 && cp src/bitcoind /usr/local/bin/argentumntd && cp src/bitcoin-cli /usr/local/bin/argentumnt-cli && make distclean
+CMD ["argentumntd"]
