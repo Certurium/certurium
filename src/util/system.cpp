@@ -688,7 +688,7 @@ fs::path GetDefaultDataDir()
     // Unix: ~/.bitcoin
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Platinumcoin";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Argentumntcoin";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -698,10 +698,10 @@ fs::path GetDefaultDataDir()
         pathRet = fs::path(pszHome);
 #ifdef MAC_OSX
     // Mac
-    return pathRet / "Library/Application Support/Platinumcoin";
+    return pathRet / "Library/Application Support/Argentumntcoin";
 #else
     // Unix
-    return pathRet / ".platinumcoin";
+    return pathRet / ".argentumntcoin";
 #endif
 #endif
 }
