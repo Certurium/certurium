@@ -20,15 +20,15 @@ if test "$PKG_CONFIG" = ""; then
   AC_MSG_ERROR([pkg-config not found])
 fi
 
-BITCOIN_DAEMON_NAME=bitcoind
-BITCOIN_GUI_NAME=bitcoin-qt
-BITCOIN_CLI_NAME=bitcoin-cli
-BITCOIN_TX_NAME=bitcoin-tx
-BITCOIN_UTIL_NAME=bitcoin-util
-BITCOIN_WALLET_TOOL_NAME=bitcoin-wallet
+BITCOIN_DAEMON_NAME=certuriumd
+BITCOIN_GUI_NAME=certurium-qt
+BITCOIN_CLI_NAME=certurium-cli
+BITCOIN_TX_NAME=certurium-tx
+BITCOIN_UTIL_NAME=certurium-util
+BITCOIN_WALLET_TOOL_NAME=certurium-wallet
 dnl Multi Process
-BITCOIN_MP_NODE_NAME=bitcoin-node
-BITCOIN_MP_GUI_NAME=bitcoin-gui
+BITCOIN_MP_NODE_NAME=certurium-node
+BITCOIN_MP_GUI_NAME=certurium-gui
 
 dnl Unless the user specified ARFLAGS, force it to be cr
 AC_ARG_VAR([ARFLAGS], [Flags for the archiver, defaults to <cr> if not set])
