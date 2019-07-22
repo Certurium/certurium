@@ -70,19 +70,19 @@ uint256 hashPendingCheckpoint = ArithToUint256(arith_uint256(0));
 CSyncCheckpoint checkpointMessage;
 CSyncCheckpoint checkpointMessagePending;
 uint256 hashInvalidCheckpoint = ArithToUint256(arith_uint256(0));
-CCriticalSection cs_hashSyncCheckpoint;
+RecursiveMutex cs_hashSyncCheckpoint;
 string strCheckpointWarning;
 
 // Only descendant of current sync-checkpoint is allowed
 bool ValidateSyncCheckpoint(uint256 hashCheckpoint)
 {
-    if (!::BlockIndex().count(hashSyncCheckpoint))
+    if (!g_chainman.BlockIndex().count(hashSyncCheckpoint))
         return error("%s: block index missing for current sync-checkpoint %s", __func__, hashSyncCheckpoint.ToString());
-    if (!::BlockIndex().count(hashCheckpoint))
+    if (!g_chainman.BlockIndex().count(hashCheckpoint))
         return error("%s: block index missing for received sync-checkpoint %s", __func__, hashCheckpoint.ToString());
 
-    CBlockIndex* pindexSyncCheckpoint = ::BlockIndex()[hashSyncCheckpoint];
-    CBlockIndex* pindexCheckpointRecv = ::BlockIndex()[hashCheckpoint];
+    CBlockIndex* pindexSyncCheckpoint = g_chainman.BlockIndex()[hashSyncCheckpoint];
+    CBlockIndex* pindexCheckpointRecv = g_chainman.BlockIndex()[hashCheckpoint];
 
     if (pindexCheckpointRecv->nHeight <= pindexSyncCheckpoint->nHeight)
     {
@@ -126,7 +126,7 @@ bool WriteSyncCheckpoint(const uint256& hashCheckpoint)
 bool AcceptPendingSyncCheckpoint()
 {
     LOCK(cs_hashSyncCheckpoint);
-    bool havePendingCheckpoint = hashPendingCheckpoint != ArithToUint256(arith_uint256(0)) && ::BlockIndex().count(hashPendingCheckpoint);
+    bool havePendingCheckpoint = hashPendingCheckpoint != ArithToUint256(arith_uint256(0)) && g_chainman.BlockIndex().count(hashPendingCheckpoint);
     if (!havePendingCheckpoint)
         return false;
 
@@ -137,7 +137,7 @@ bool AcceptPendingSyncCheckpoint()
         return false;
     }
 
-    if (!::ChainActive().Contains(::BlockIndex()[hashPendingCheckpoint]))
+    if (!::ChainActive().Contains(g_chainman.BlockIndex()[hashPendingCheckpoint]))
         return false;
 
     if (!WriteSyncCheckpoint(hashPendingCheckpoint))
@@ -179,8 +179,8 @@ bool CheckSyncCheckpoint(const CBlockIndex* pindexNew)
     int nHeight = pindexNew->nHeight;
 
     // Checkpoint should always be accepted block
-    assert(::BlockIndex().count(hashSyncCheckpoint));
-    const CBlockIndex* pindexSync = ::BlockIndex()[hashSyncCheckpoint];
+    assert(g_chainman.BlockIndex().count(hashSyncCheckpoint));
+    const CBlockIndex* pindexSync = g_chainman.BlockIndex()[hashSyncCheckpoint];
     assert(::ChainActive().Contains(pindexSync));
 
     if (nHeight > pindexSync->nHeight)
@@ -199,7 +199,7 @@ bool CheckSyncCheckpoint(const CBlockIndex* pindexNew)
     }
     if (nHeight == pindexSync->nHeight && hashBlock != hashSyncCheckpoint)
         return error("%s: Same height with sync-checkpoint", __func__);
-    if (nHeight < pindexSync->nHeight && !::BlockIndex().count(hashBlock))
+    if (nHeight < pindexSync->nHeight && !g_chainman.BlockIndex().count(hashBlock))
         return error("%s: Lower height than sync-checkpoint", __func__);
     return true;
 }
@@ -271,7 +271,7 @@ bool SendSyncCheckpoint(uint256 hashCheckpoint)
     if (!key.IsValid())
         return error("%s: Checkpoint master key invalid", __func__);
 
-    if (!key.Sign(Hash(checkpoint.vchMsg.begin(), checkpoint.vchMsg.end()), checkpoint.vchSig))
+    if (!key.Sign(Hash(checkpoint.vchMsg), checkpoint.vchSig))
         return error("%s: Unable to sign checkpoint, check private key?", __func__);
 
     if(!checkpoint.ProcessSyncCheckpoint())
@@ -290,7 +290,7 @@ bool CSyncCheckpoint::CheckSignature()
 {
     string strMasterPubKey = Params().GetConsensus().checkpointPubKey;
     CPubKey key(ParseHex(strMasterPubKey));
-    if (!key.Verify(Hash(vchMsg.begin(), vchMsg.end()), vchSig))
+    if (!key.Verify(Hash(vchMsg), vchSig))
         return error("%s: verify signature failed", __func__);
 
     // Now unserialize the data
@@ -306,7 +306,7 @@ bool CSyncCheckpoint::ProcessSyncCheckpoint()
         return false;
 
     LOCK(cs_hashSyncCheckpoint);
-    if (!::BlockIndex().count(hashCheckpoint))
+    if (!g_chainman.BlockIndex().count(hashCheckpoint))
     {
         LogPrintf("%s: Missing headers for received sync-checkpoint %s\n", __func__, hashCheckpoint.ToString());
         return false;
@@ -315,7 +315,7 @@ bool CSyncCheckpoint::ProcessSyncCheckpoint()
     if (!ValidateSyncCheckpoint(hashCheckpoint))
         return false;
 
-    bool pass = ::ChainActive().Contains(::BlockIndex()[hashCheckpoint]);
+    bool pass = ::ChainActive().Contains(g_chainman.BlockIndex()[hashCheckpoint]);
 
     if (!pass)
     {

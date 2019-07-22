@@ -94,6 +94,9 @@ static const unsigned int DEFAULT_CHECKLEVEL = 3;
 // Setting the target to >= 550 MiB will make it likely we can respect the target.
 static const uint64_t MIN_DISK_SPACE_FOR_BLOCK_FILES = 550 * 1024 * 1024;
 
+static const signed int DEFAULT_AUTOCHECKPOINT = 5;
+
+
 struct BlockHasher
 {
     // this used to call `GetCheapHash()` in uint256, which was later moved; the

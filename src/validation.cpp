@@ -2496,7 +2496,7 @@ static void UpdateTip(CTxMemPool& mempool, const CBlockIndex* pindexNew, const C
         LogPrint(BCLog::VALIDATION, "%d of last 100 blocks have unexpected version\n", num_unexpected_version);
     }
     if (pindexBestHeader->pprev)
-        CheckSyncCheckpoint(pindexBestHeader->GetBlockHash(), pindexBestHeader->pprev);
+        CheckSyncCheckpoint(pindexBestHeader);
 }
 
 /** Disconnect m_chain's tip.

@@ -91,6 +91,7 @@ static bool fFeeEstimatesInitialized = false;
 static const bool DEFAULT_PROXYRANDOMIZE = true;
 static const bool DEFAULT_REST_ENABLE = false;
 static const bool DEFAULT_STOPAFTERBLOCKIMPORT = false;
+std::unique_ptr<CConnman> g_connman;
 
 #ifdef WIN32
 // Win32 LevelDB doesn't use filedescriptors, and the ones used for
@@ -1209,7 +1210,7 @@ bool AppInitParameterInteraction(const ArgsManager& args)
     if (gArgs.IsArgSet("-checkpointkey")) // Checkpoint master priv key
     {
         if (!SetCheckpointPrivKey(gArgs.GetArg("-checkpointkey", "")))
-            return InitError(_("Unable to sign checkpoint, wrong checkpointkey?").translated);
+            return InitError(_("Unable to sign checkpoint, wrong checkpointkey?"));
     }
     return true;
 }
@@ -1399,6 +1400,7 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
     node.banman = MakeUnique<BanMan>(GetDataDir() / "banlist.dat", &uiInterface, args.GetArg("-bantime", DEFAULT_MISBEHAVING_BANTIME));
     assert(!node.connman);
     node.connman = MakeUnique<CConnman>(GetRand(std::numeric_limits<uint64_t>::max()), GetRand(std::numeric_limits<uint64_t>::max()), args.GetBoolArg("-networkactive", true));
+    g_connman = std::unique_ptr<CConnman>(node.connman.get());
 
     // Make mempool generally available in the node context. For example the connection manager, wallet, or RPC threads,
     // which are all started after this, may use it from the node context.
@@ -1730,7 +1732,7 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
 
             uiInterface.InitMessage(_("Checking ACP ...").translated);
             if (!CheckCheckpointPubKey()) {
-                strLoadError = _("Checking ACP pubkey failed").translated;
+                strLoadError = _("Checking ACP pubkey failed");
                 break;
             }
 
