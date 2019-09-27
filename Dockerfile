@@ -8,5 +8,5 @@ RUN apt-get update -q && \
 WORKDIR /argentumnt
 VOLUME /root/.argentumntcoin/
 ADD . /argentumnt
-RUN ./autogen.sh && ./configure --with-gui=no --with-incompatible-bdb --enable-static --disable-shared && make -j4 && cp src/bitcoind /usr/local/bin/argentumntd && cp src/bitcoin-cli /usr/local/bin/argentumnt-cli && make distclean
+RUN ./autogen.sh && ./configure --with-gui=no --with-incompatible-bdb --enable-static --disable-shared && make -j4 && cp src/argentum* /usr/local/bin/ && make distclean
 CMD ["argentumntd"]
