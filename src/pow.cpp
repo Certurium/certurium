@@ -13,6 +13,9 @@ static const int64_t DIFFICULTY_ADJUST_WINDOW = 60;
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
+    if (params.fPowAllowMinDifficultyBlocks)
+        return UintToArith256(params.powLimit).GetCompact();
+
     assert(pindexLast != nullptr);
     const auto BitsToArith256 = [](uint32_t bits){
         arith_uint256 value;
