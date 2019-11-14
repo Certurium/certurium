@@ -58,6 +58,7 @@ public:
         consensus.BIP34Hash = uint256S("0x63917ff95e4f9d15a2e4649ab1d7c68dc19fa290cc2b283186a90e2f24465ce9");
         consensus.BIP65Height = 0;
         consensus.BIP66Height = 0;
+        consensus.coinbaseSoftforkAddress = "32RkqiLFR6UbhuULowSQUjWEy4jGfANRqH";
         consensus.powLimit = uint256S("0000007fffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 60; // one minute
         consensus.nPowTargetSpacing = 60;
@@ -79,6 +80,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+
+        consensus.vDeployments[Consensus::DEPLOYMENT_COINBASE_SOFTFORK].bit = 2;
+        consensus.vDeployments[Consensus::DEPLOYMENT_COINBASE_SOFTFORK].nStartTime = 1569937829; // October 1st 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_COINBASE_SOFTFORK].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x00000000000000000000000000000000000000000000000000000000eeeeeeee");
 
@@ -156,6 +161,8 @@ public:
         consensus.BIP34Hash = uint256S("0xTODO:GENESISBLOCK");
         consensus.BIP65Height = 0;
         consensus.BIP66Height = 0;
+        // Use a valid testnet address
+        consensus.coinbaseSoftforkAddress = "";
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 60; // one minute
         consensus.nPowTargetSpacing = 60;
@@ -177,6 +184,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+
+        consensus.vDeployments[Consensus::DEPLOYMENT_COINBASE_SOFTFORK].bit = 2;
+        consensus.vDeployments[Consensus::DEPLOYMENT_COINBASE_SOFTFORK].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_COINBASE_SOFTFORK].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000100010");
@@ -251,6 +262,7 @@ public:
         consensus.BIP34Hash = uint256();
         consensus.BIP65Height = 0; // BIP65 activated on regtest (Used in functional tests)
         consensus.BIP66Height = 0; // BIP66 activated on regtest (Used in functional tests)
+        consensus.coinbaseSoftforkAddress = "2Msfs6ngYGoJ4DTLz5sNYdTdsmYuqABUByx";
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 60; // one minute
         consensus.nPowTargetSpacing = 60;
@@ -268,6 +280,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+
+        consensus.vDeployments[Consensus::DEPLOYMENT_COINBASE_SOFTFORK].bit = 2;
+        consensus.vDeployments[Consensus::DEPLOYMENT_COINBASE_SOFTFORK].nStartTime = 1569937829;
+        consensus.vDeployments[Consensus::DEPLOYMENT_COINBASE_SOFTFORK].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x00");
