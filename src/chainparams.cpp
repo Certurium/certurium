@@ -181,9 +181,6 @@ public:
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000100010");
 
-        // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x54fe00bf048fffe073889abebe84f11a616053ed1e43c3954a0a7e0e20c76219");
-
         pchMessageStart[0] = 0xfc;
         pchMessageStart[1] = 0xc1;
         pchMessageStart[2] = 0xb7;
@@ -195,6 +192,10 @@ public:
 
         genesis = CreateGenesisBlock(1560500000, 2143766714, 0x1d7fffff, 1, 2222222222222222);
         consensus.hashGenesisBlock = genesis.GetHash();
+
+        // By default assume that the signatures in ancestors of this block are valid.
+        consensus.defaultAssumeValid = consensus.hashGenesisBlock;
+
         //assert(consensus.hashGenesisBlock == uint256S("0x7734b3734ab1f0d0758e6c274622a377092549df05f6a4fe6939cbc754939169"));
         //assert(genesis.hashMerkleRoot == uint256S("0x97ddfbbae6be97fd6cdf3e7ca13232a3afff2353e29badfab7f73011edd4ced9"));
 
@@ -271,9 +272,6 @@ public:
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x00");
 
-        // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x00");
-
         pchMessageStart[0] = 0xfa;
         pchMessageStart[1] = 0xbf;
         pchMessageStart[2] = 0xb5;
@@ -287,6 +285,10 @@ public:
 
         genesis = CreateGenesisBlock(1560500000, 2143766714, 0x1d7fffff, 1, 2222222222222222);
         consensus.hashGenesisBlock = genesis.GetHash();
+
+        // By default assume that the signatures in ancestors of this block are valid.
+        consensus.defaultAssumeValid = consensus.hashGenesisBlock;
+
         //assert(consensus.hashGenesisBlock == uint256S("0xc797e583cd93b97b1370a687519606abebd2b84fc4294b0e7584f59187e23ebb"));
         //assert(genesis.hashMerkleRoot == uint256S("0x97ddfbbae6be97fd6cdf3e7ca13232a3afff2353e29badfab7f73011edd4ced9"));
 
