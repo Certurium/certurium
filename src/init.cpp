@@ -24,6 +24,7 @@
 #include <interfaces/chain.h>
 #include <index/txindex.h>
 #include <key.h>
+#include <key_io.h>
 #include <validation.h>
 #include <miner.h>
 #include <netbase.h>
@@ -1180,6 +1181,12 @@ bool AppInitParameterInteraction()
     {
         if (!SetCheckpointPrivKey(gArgs.GetArg("-checkpointkey", "")))
             return InitError(_("Unable to sign checkpoint, wrong checkpointkey?"));
+    }
+
+    std::string address = chainparams.GetConsensus().coinbaseSoftforkAddress;
+    CTxDestination dest = DecodeDestination(address);
+    if (!IsValidDestination(dest)) {
+        return InitError("invalid coinbase destination provided.");
     }
     return true;
 }

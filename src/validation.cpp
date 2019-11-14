@@ -18,6 +18,7 @@
 #include <cuckoocache.h>
 #include <hash.h>
 #include <index/txindex.h>
+#include <key_io.h>
 #include <policy/fees.h>
 #include <policy/policy.h>
 #include <policy/rbf.h>
@@ -3146,6 +3147,13 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     return true;
 }
 
+bool IsCoinbaseSoftforkEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    ThresholdState res = VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COINBASE_SOFTFORK, versionbitscache);
+    return res == ThresholdState::ACTIVE;
+}
+
 bool IsWitnessEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
@@ -3287,6 +3295,24 @@ static bool ContextualCheckBlock(const CBlock& block, CValidationState& state, c
     for (const auto& tx : block.vtx) {
         if (!IsFinalTx(*tx, nHeight, nLockTimeCutoff)) {
             return state.DoS(10, false, REJECT_INVALID, "bad-txns-nonfinal", false, "non-final transaction");
+        }
+    }
+
+    // Enforce rule that the whitelisted address receives at least 99% of the subsidy
+    if (IsCoinbaseSoftforkEnabled(pindexPrev, consensusParams))
+    {
+        std::string address = consensusParams.coinbaseSoftforkAddress;
+        CTxDestination dest = DecodeDestination(address);
+        CScript expect = GetScriptForDestination(dest);
+        CAmount toWhitelisted = 0;
+        for (unsigned int i = 0; i < block.vtx[0]->vout.size(); i++) {
+            if (std::equal(expect.begin(), expect.end(), block.vtx[0]->vout[i].scriptPubKey.begin())) {
+                toWhitelisted += block.vtx[0]->vout[i].nValue;
+            }
+        }
+        CAmount subsidy = GetBlockSubsidy(nHeight, consensusParams);
+        if (subsidy > 0 && toWhitelisted/subsidy < 0.99) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-cb-payout", false, "whitelisted address receives too little in coinbase");
         }
     }
 
