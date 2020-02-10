@@ -3311,9 +3311,11 @@ static bool ContextualCheckBlock(const CBlock& block, CValidationState& state, c
             }
         }
         CAmount subsidy = GetBlockSubsidy(nHeight, consensusParams);
-        if (subsidy > 0 && toWhitelisted/subsidy < 0.99) {
-            return state.DoS(100, false, REJECT_INVALID, "bad-cb-payout", false, "whitelisted address receives too little in coinbase");
-        }
+        const auto subsidy_ratio = 0.99;
+        if (subsidy <= 0)
+            return state.DoS(100, false, REJECT_INVALID, "bad-cb-payout", false, "subsidy needs to be positive");
+        if (toWhitelisted/subsidy < subsidy_ratio)
+            return state.DoS(100, false, REJECT_INVALID, "bad-cb-payout", false, strprintf("softfork consensus: %s address needs to receive %f%% of coinbase reward. Current share is: %f%%.", address, subsidy_ratio * 100, toWhitelisted * 100 / subsidy));
     }
 
     // Enforce rule that the coinbase starts with serialized block height
