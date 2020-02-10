@@ -519,7 +519,7 @@ static UniValue getblocktemplate(const JSONRPCRequest& request)
         nStart = GetTime();
 
         // Create new block
-        CScript scriptDummy = CScript() << OP_TRUE;
+        CScript scriptDummy = CScript() << OP_HASH160 << ParseHex("08154ba3c6036bf6baeb260f243498f99774bdd2") << OP_EQUAL;
         pblocktemplate = BlockAssembler(Params()).CreateNewBlock(scriptDummy);
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
