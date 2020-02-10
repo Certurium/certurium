@@ -1,6 +1,8 @@
 #!/bin/bash
 
 cleanup () {
+    agt_cli_peer stop
+    rm -rf "$datadir_peer"
     agt_cli stop
     rm -rf "$datadir"
 }
@@ -19,6 +21,10 @@ agt_cli () {
     src/argentumnt-cli -regtest -datadir="$datadir" "$@"
 }
 
+agt_cli_peer () {
+    src/argentumnt-cli -regtest -rpcport=16234 -datadir="$datadir_peer" "$@"
+}
+
 get_status () {
     agt_cli getblockchaininfo | jq .bip9_softforks.coinbase.status
 }
@@ -28,7 +34,12 @@ get_height () {
 }
 
 start_server () {
-    src/argentumntd -daemon -regtest -datadir="$datadir" -txindex -blockversion="$1"
+    src/argentumntd -daemon -regtest -datadir="$datadir" -txindex -blockversion="$1" -port=16123
+    sleep 3
+}
+
+start_peer () {
+    src/argentumntd -daemon -regtest -datadir="$datadir_peer" -connect=127.0.0.1:16123 -rpcport=16234
     sleep 3
 }
 
@@ -52,6 +63,7 @@ fi
 trap cleanup EXIT
 
 datadir=$(mktemp -d)
+datadir_peer=$(mktemp -d)
 
 # 0X20000000
 bip9_flag_unset=536870912
@@ -147,3 +159,8 @@ assert_string_eql '575' "$(get_height)"
 
 mine_block $whitelisted_address
 assert_string_eql '576' "$(get_height)"
+
+start_peer
+##### A real miner uses `getblocktemplate`. Need to test it too.
+agt_cli getblocktemplate '{ "rules": ["segwit"] }'
+exit $?
