@@ -262,7 +262,7 @@ public:
         consensus.BIP34Hash = uint256();
         consensus.BIP65Height = 0; // BIP65 activated on regtest (Used in functional tests)
         consensus.BIP66Height = 0; // BIP66 activated on regtest (Used in functional tests)
-        consensus.coinbaseSoftforkAddress = "2Msfs6ngYGoJ4DTLz5sNYdTdsmYuqABUByx";
+        consensus.coinbaseSoftforkAddress = "2MsyxuTGH2Yywuh6tV54H6gVWBQwSTfyBU7";
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 60; // one minute
         consensus.nPowTargetSpacing = 60;

@@ -63,7 +63,7 @@ change_activation_threshold=108
 
 start_server $bip9_flag_set
 
-whitelisted_address='2Msfs6ngYGoJ4DTLz5sNYdTdsmYuqABUByx'
+whitelisted_address='2MsyxuTGH2Yywuh6tV54H6gVWBQwSTfyBU7'
 other_address='2NA1keVWTLwCcH2fZXvRKdPYHC5E5dPQHD5'
 
 ##### Mine second-to-last block of first confirmation window (genesis counts as well)
