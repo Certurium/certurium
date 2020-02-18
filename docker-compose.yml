@@ -1,6 +1,6 @@
 version: '3'
 services:
-    argentumnt:
+    certurium:
         build: .
         ports:
             - '13580:13580'

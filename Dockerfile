@@ -5,8 +5,8 @@ RUN apt-get update -q && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean
-WORKDIR /argentumnt
-VOLUME /root/.argentumntcoin/
-ADD . /argentumnt
-RUN ./autogen.sh && ./configure --with-gui=no --with-incompatible-bdb --enable-static --disable-shared && make -j4 && cp src/argentum* /usr/local/bin/ && make distclean
-CMD ["argentumntd"]
+WORKDIR /certurium
+VOLUME /root/.certurium/
+ADD . /certurium
+RUN ./autogen.sh && ./configure --with-gui=no --with-incompatible-bdb --enable-static --disable-shared && make -j4 && cp src/certurium* /usr/local/bin/ && make distclean
+CMD ["certuriumd"]

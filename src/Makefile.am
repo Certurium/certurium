@@ -82,18 +82,18 @@ TESTS =
 BENCHMARKS =
 
 if BUILD_BITCOIND
-  bin_PROGRAMS += argentumntd
+  bin_PROGRAMS += certuriumd
 endif
 
 if BUILD_BITCOIN_CLI
-  bin_PROGRAMS += argentumnt-cli
+  bin_PROGRAMS += certurium-cli
 endif
 if BUILD_BITCOIN_TX
-  bin_PROGRAMS += argentumnt-tx
+  bin_PROGRAMS += certurium-tx
 endif
 if ENABLE_WALLET
 if BUILD_BITCOIN_WALLET
-  bin_PROGRAMS += argentumnt-wallet
+  bin_PROGRAMS += certurium-wallet
 endif
 endif
 
@@ -487,17 +487,17 @@ libbitcoin_cli_a_SOURCES = \
 nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 #
 
-# argentumntd binary #
-argentumntd_SOURCES = bitcoind.cpp
-argentumntd_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-argentumntd_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-argentumntd_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+# certuriumd binary #
+certuriumd_SOURCES = bitcoind.cpp
+certuriumd_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+certuriumd_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+certuriumd_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-argentumntd_SOURCES += bitcoind-res.rc
+certuriumd_SOURCES += bitcoind-res.rc
 endif
 
-argentumntd_LDADD = \
+certuriumd_LDADD = \
   $(LIBBITCOIN_SERVER) \
   $(LIBBITCOIN_WALLET) \
   $(LIBBITCOIN_SERVER) \
@@ -512,38 +512,38 @@ argentumntd_LDADD = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-argentumntd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+certuriumd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 
-# argentumnt-cli binary #
-argentumnt_cli_SOURCES = bitcoin-cli.cpp
-argentumnt_cli_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
-argentumnt_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-argentumnt_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+# certurium-cli binary #
+certurium_cli_SOURCES = bitcoin-cli.cpp
+certurium_cli_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
+certurium_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+certurium_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-argentumnt_cli_SOURCES += bitcoin-cli-res.rc
+certurium_cli_SOURCES += bitcoin-cli-res.rc
 endif
 
-argentumnt_cli_LDADD = \
+certurium_cli_LDADD = \
   $(LIBBITCOIN_CLI) \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO)
 
-argentumnt_cli_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
+certurium_cli_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
 #
 
-# argentumnt-tx binary #
-argentumnt_tx_SOURCES = bitcoin-tx.cpp
-argentumnt_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-argentumnt_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-argentumnt_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+# certurium-tx binary #
+certurium_tx_SOURCES = bitcoin-tx.cpp
+certurium_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+certurium_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+certurium_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-argentumnt_tx_SOURCES += bitcoin-tx-res.rc
+certurium_tx_SOURCES += bitcoin-tx-res.rc
 endif
 
-argentumnt_tx_LDADD = \
+certurium_tx_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_COMMON) \
   $(LIBBITCOIN_UTIL) \
@@ -551,20 +551,20 @@ argentumnt_tx_LDADD = \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBSECP256K1)
 
-argentumnt_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
+certurium_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 #
 
-# argentumnt-wallet binary #
-argentumnt_wallet_SOURCES = bitcoin-wallet.cpp
-argentumnt_wallet_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-argentumnt_wallet_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-argentumnt_wallet_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+# certurium-wallet binary #
+certurium_wallet_SOURCES = bitcoin-wallet.cpp
+certurium_wallet_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+certurium_wallet_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+certurium_wallet_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-argentumnt_wallet_SOURCES += bitcoin-wallet-res.rc
+certurium_wallet_SOURCES += bitcoin-wallet-res.rc
 endif
 
-argentumnt_wallet_LDADD = \
+certurium_wallet_LDADD = \
   $(LIBBITCOIN_WALLET_TOOL) \
   $(LIBBITCOIN_WALLET) \
   $(LIBBITCOIN_SERVER) \
@@ -577,7 +577,7 @@ argentumnt_wallet_LDADD = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-argentumnt_wallet_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS)
+certurium_wallet_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS)
 #
 
 # bitcoinconsensus library #
