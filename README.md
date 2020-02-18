@@ -1,15 +1,15 @@
-Argentum NT Core integration/staging tree
+Certurium Core integration/staging tree
 =====================================
 
-https://argentum-nt.com
+https://certurium.com
 
-What is Argentum NT?
+What is Certurium?
 ----------------
 
-Argentum NT is an experimental digital currency that enables instant payments to
-anyone, anywhere in the world. Argentum NT uses peer-to-peer technology to operate
+Certurium is an experimental digital currency that enables instant payments to
+anyone, anywhere in the world. Certurium uses peer-to-peer technology to operate
 with no central authority: managing transactions and issuing money are carried
-out collectively by the network. Argentum NT Core is the name of open source
+out collectively by the network. Certurium Core is the name of open source
 software which enables the use of this currency.
 
 For more information, as well as an immediately useable, binary version of
@@ -19,7 +19,7 @@ the original Bitcoin Core software, see https://bitcoincore.org/en/download/, or
 License
 -------
 
-Argentum NT is a fork of Bitcoin Core and inherits the terms of the MIT license. See COPYING for more information or see https://opensource.org/licenses/MIT.
+Certurium is a fork of Bitcoin Core and inherits the terms of the MIT license. See COPYING for more information or see https://opensource.org/licenses/MIT.
 
 Development Process
 -------------------
