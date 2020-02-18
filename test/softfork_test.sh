@@ -1,50 +1,50 @@
 #!/bin/bash
 
 cleanup () {
-    agt_cli_peer stop
+    crtm_cli_peer stop
     rm -rf "$datadir_peer"
-    agt_cli stop
+    crtm_cli stop
     rm -rf "$datadir"
 }
 
 mine_block () {
-    agt_cli generatetoaddress 1 "$1" 1>/dev/null
+    crtm_cli generatetoaddress 1 "$1" 1>/dev/null
     (( "timestamp+=10" ))
-    agt_cli setmocktime "$timestamp"
+    crtm_cli setmocktime "$timestamp"
 }
 
 dummy_mine () {
     mine_block "$other_address" > /dev/null 2>&1
 }
 
-agt_cli () {
-    src/argentumnt-cli -regtest -datadir="$datadir" "$@"
+crtm_cli () {
+    src/certurium-cli -regtest -datadir="$datadir" "$@"
 }
 
-agt_cli_peer () {
-    src/argentumnt-cli -regtest -rpcport=16234 -datadir="$datadir_peer" "$@"
+crtm_cli_peer () {
+    src/certurium-cli -regtest -rpcport=16234 -datadir="$datadir_peer" "$@"
 }
 
 get_status () {
-    agt_cli getblockchaininfo | jq .bip9_softforks.coinbase.status
+    crtm_cli getblockchaininfo | jq .bip9_softforks.coinbase.status
 }
 
 get_height () {
-   agt_cli getblockchaininfo | jq .blocks
+   crtm_cli getblockchaininfo | jq .blocks
 }
 
 start_server () {
-    src/argentumntd -daemon -regtest -datadir="$datadir" -txindex -blockversion="$1" -port=16123
+    src/certuriumd -daemon -regtest -datadir="$datadir" -txindex -blockversion="$1" -port=16123
     sleep 3
 }
 
 start_peer () {
-    src/argentumntd -daemon -regtest -datadir="$datadir_peer" -connect=127.0.0.1:16123 -rpcport=16234
+    src/certuriumd -daemon -regtest -datadir="$datadir_peer" -connect=127.0.0.1:16123 -rpcport=16234
     sleep 3
 }
 
 stop_server () {
-    agt_cli stop
+    crtm_cli stop
     sleep 3
 }
 
@@ -162,5 +162,5 @@ assert_string_eql '576' "$(get_height)"
 
 start_peer
 ##### A real miner uses `getblocktemplate`. Need to test it too.
-agt_cli getblocktemplate '{ "rules": ["segwit"] }'
+crtm_cli getblocktemplate '{ "rules": ["segwit"] }'
 exit $?
