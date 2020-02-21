@@ -16,7 +16,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 AM_PROG_AS
 
-BITCOIN_DAEMON_NAME=d
+BITCOIN_DAEMON_NAME=certuriumd
 BITCOIN_GUI_NAME=certurium-qt
 BITCOIN_CLI_NAME=certurium-cli
 BITCOIN_TX_NAME=certurium-tx
