@@ -990,9 +990,9 @@ UniValue getcheckpoint(const JSONRPCRequest& request)
     CBlockIndex* pindexCheckpoint;
 
     result.pushKV("synccheckpoint", hashSyncCheckpoint.ToString().c_str());
-    if (::BlockIndex().count(hashSyncCheckpoint))
+    if (g_chainman.BlockIndex().count(hashSyncCheckpoint))
     {
-        pindexCheckpoint = ::BlockIndex()[hashSyncCheckpoint];
+        pindexCheckpoint = g_chainman.BlockIndex()[hashSyncCheckpoint];
         result.pushKV("height", pindexCheckpoint->nHeight);
         result.pushKV("timestamp", (boost::int64_t) pindexCheckpoint->GetBlockTime());
     }
@@ -1022,9 +1022,9 @@ UniValue sendcheckpoint(const JSONRPCRequest& request)
     CBlockIndex* pindexCheckpoint;
 
     result.pushKV("synccheckpoint", hashSyncCheckpoint.ToString().c_str());
-    if (::BlockIndex().count(hashSyncCheckpoint))
+    if (g_chainman.BlockIndex().count(hashSyncCheckpoint))
     {
-        pindexCheckpoint = ::BlockIndex()[hashSyncCheckpoint];
+        pindexCheckpoint = g_chainman.BlockIndex()[hashSyncCheckpoint];
         result.pushKV("height", pindexCheckpoint->nHeight);
         result.pushKV("timestamp", (boost::int64_t) pindexCheckpoint->GetBlockTime());
     }

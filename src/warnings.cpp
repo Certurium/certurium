@@ -58,8 +58,8 @@ bilingual_str GetWarnings(bool verbose)
     // Checkpoint warning
     if (strCheckpointWarning != "")
     {
-        warnings_concise = strCheckpointWarning;
-        warnings_verbose += (warnings_verbose.empty() ? "" : warning_separator) + strCheckpointWarning;
+        warnings_concise = Untranslated(strCheckpointWarning);
+        warnings_verbose.emplace_back(warnings_concise);
     }
 
     // Misc warnings like out of disk space and clock is wrong
@@ -79,8 +79,8 @@ bilingual_str GetWarnings(bool verbose)
     // If detected invalid checkpoint enter safe mode
     if (hashInvalidCheckpoint != ArithToUint256(arith_uint256(0)))
     {
-        warnings_concise = "Warning: Inconsistent checkpoint found! Stop enforcing checkpoints and notify developers to resolve the issue.";
-        warnings_verbose += (warnings_verbose.empty() ? "" : warning_separator) + _("Warning: Inconsistent checkpoint found! Stop enforcing checkpoints and notify developers to resolve the issue.").translated;
+        warnings_concise = Untranslated("Warning: Inconsistent checkpoint found! Stop enforcing checkpoints and notify developers to resolve the issue.");
+        warnings_verbose.emplace_back(warnings_concise);
     }
 
     if (verbose) {
