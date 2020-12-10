@@ -21,7 +21,7 @@ class CCoinsViewCache;
 extern uint256 hashSyncCheckpoint;
 extern CSyncCheckpoint checkpointMessage;
 extern uint256 hashInvalidCheckpoint;
-extern CCriticalSection cs_hashSyncCheckpoint;
+extern RecursiveMutex cs_hashSyncCheckpoint;
 extern std::string strCheckpointWarning;
 
 bool WriteSyncCheckpoint(const uint256& hashCheckpoint);
@@ -41,12 +41,9 @@ public:
     int nVersion;
     uint256 hashCheckpoint;      // checkpoint block
 
-    ADD_SERIALIZE_METHODS;
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(this->nVersion);
-        nVersion = this->nVersion;
-        READWRITE(hashCheckpoint);
+    SERIALIZE_METHODS(CUnsignedSyncCheckpoint, obj)
+    {
+        READWRITE(obj.nVersion, obj.hashCheckpoint);
     }
 
     void SetNull()
@@ -84,12 +81,9 @@ public:
         SetNull();
     }
 
-    ADD_SERIALIZE_METHODS;
-    
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(vchMsg);
-        READWRITE(vchSig);
+    SERIALIZE_METHODS(CSyncCheckpoint, obj)
+    {
+        READWRITE(obj.vchMsg, obj.vchSig);
     }
 
     void SetNull()
@@ -106,7 +100,7 @@ public:
 
     uint256 GetHash() const
     {
-        return Hash(this->vchMsg.begin(), this->vchMsg.end());
+        return Hash(vchMsg);
     }
 
     bool RelayTo(CNode* pfrom) const
@@ -115,7 +109,7 @@ public:
         if (g_connman && pfrom->hashCheckpointKnown != hashCheckpoint)
         {
             pfrom->hashCheckpointKnown = hashCheckpoint;
-            g_connman->PushMessage(pfrom, CNetMsgMaker(pfrom->GetSendVersion()).Make(NetMsgType::CHECKPOINT, *this));
+            g_connman->PushMessage(pfrom, CNetMsgMaker(pfrom->GetCommonVersion()).Make(NetMsgType::CHECKPOINT, *this));
             return true;
         }
         return false;
