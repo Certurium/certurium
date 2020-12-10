@@ -90,6 +90,8 @@ static const size_t DEFAULT_MAXSENDBUFFER    = 1 * 1000;
 
 typedef int64_t NodeId;
 
+extern std::unique_ptr<CConnman> g_connman;
+
 struct AddedNodeInfo
 {
     std::string strAddedNode;
