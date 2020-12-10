@@ -70,7 +70,7 @@ uint256 hashPendingCheckpoint = ArithToUint256(arith_uint256(0));
 CSyncCheckpoint checkpointMessage;
 CSyncCheckpoint checkpointMessagePending;
 uint256 hashInvalidCheckpoint = ArithToUint256(arith_uint256(0));
-CCriticalSection cs_hashSyncCheckpoint;
+RecursiveMutex cs_hashSyncCheckpoint;
 string strCheckpointWarning;
 
 // Only descendant of current sync-checkpoint is allowed
