@@ -95,6 +95,8 @@
 static const bool DEFAULT_PROXYRANDOMIZE = true;
 static const bool DEFAULT_REST_ENABLE = false;
 
+std::unique_ptr<CConnman> g_connman;
+
 #ifdef WIN32
 // Win32 LevelDB doesn't use filedescriptors, and the ones used for
 // accessing block files don't count towards the fd_set size limit
@@ -1015,7 +1017,7 @@ bool AppInitParameterInteraction(const ArgsManager& args)
     if (gArgs.IsArgSet("-checkpointkey")) // Checkpoint master priv key
     {
         if (!SetCheckpointPrivKey(gArgs.GetArg("-checkpointkey", "")))
-            return InitError(_("Unable to sign checkpoint, wrong checkpointkey?").translated);
+            return InitError(_("Unable to sign checkpoint, wrong checkpointkey?"));
     }
     return true;
 }
@@ -1177,7 +1179,8 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     node.banman = std::make_unique<BanMan>(gArgs.GetDataDirNet() / "banlist", &uiInterface, args.GetArg("-bantime", DEFAULT_MISBEHAVING_BANTIME));
     assert(!node.connman);
     node.connman = std::make_unique<CConnman>(GetRand(std::numeric_limits<uint64_t>::max()), GetRand(std::numeric_limits<uint64_t>::max()), *node.addrman, args.GetBoolArg("-networkactive", true));
-
+    g_connman = std::unique_ptr<CConnman>(node.connman.get());
+    
     assert(!node.fee_estimator);
     // Don't initialize fee estimation with old data if we don't relay transactions,
     // as they would never get updated.
@@ -1485,7 +1488,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
 
             uiInterface.InitMessage(_("Checking ACP ...").translated);
             if (!CheckCheckpointPubKey()) {
-                strLoadError = _("Checking ACP pubkey failed").translated;
+                strLoadError = _("Checking ACP pubkey failed");
                 break;
             }
 

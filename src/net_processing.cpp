@@ -2629,7 +2629,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         {
             LOCK(cs_hashSyncCheckpoint);
             if (!checkpointMessage.IsNull())
-                checkpointMessage.RelayTo(pfrom);
+                checkpointMessage.RelayTo(&pfrom);
         }
 
         std::string remoteAddr;
@@ -3861,12 +3861,12 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         if (checkpoint.ProcessSyncCheckpoint())
         {
             // Relay checkpoint
-            pfrom->hashCheckpointKnown = checkpoint.hashCheckpoint;
+            pfrom.hashCheckpointKnown = checkpoint.hashCheckpoint;
             g_connman->ForEachNode([checkpoint](CNode* pnode) {
                 checkpoint.RelayTo(pnode);
             });
         }
-        return true;
+        return;
     }
 
     if (msg_type == NetMsgType::FILTERLOAD) {
