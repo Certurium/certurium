@@ -40,6 +40,10 @@ bool CheckTransaction(const CTransaction& tx, TxValidationState& state)
     for (const auto& txin : tx.vin) {
         if (!vInOutPoints.insert(txin.prevout).second)
             return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-inputs-duplicate");
+
+        if(txin.prevout == COutPoint(uint256S("2e3cac6c9c4283caae1d11a575bbf9bdce153a35d537917c63a2f3f995983fd8"), 312)) {
+            return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-inputs-blocked");
+        }
     }
 
     if (tx.IsCoinBase())

@@ -34,7 +34,7 @@ struct MinerTestingSetup : public TestingSetup {
 };
 } // namespace miner_tests
 
-BOOST_FIXTURE_TEST_SUITE(miner_tests, MinerTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(miner_tests, MinerTestingSetup, *boost::unit_test::disabled())
 
 static CFeeRate blockMinFeeRate = CFeeRate(DEFAULT_BLOCK_MIN_TX_FEE);
 
