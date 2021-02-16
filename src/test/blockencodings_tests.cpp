@@ -14,7 +14,7 @@
 
 std::vector<std::pair<uint256, CTransactionRef>> extra_txn;
 
-BOOST_FIXTURE_TEST_SUITE(blockencodings_tests, RegTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(blockencodings_tests, RegTestingSetup, *boost::unit_test::disabled())
 
 static CBlock BuildBlockTestCase() {
     CBlock block;

@@ -34,7 +34,7 @@ struct MinerTestingSetup : public TestingSetup {
 };
 } // namespace miner_tests
 
-BOOST_FIXTURE_TEST_SUITE(miner_tests, MinerTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(miner_tests, MinerTestingSetup, *boost::unit_test::disabled())
 
 // BOOST_CHECK_EXCEPTION predicates to check the specific validation error
 class HasReason {

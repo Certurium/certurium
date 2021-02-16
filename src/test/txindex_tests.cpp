@@ -10,7 +10,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(txindex_tests)
+BOOST_AUTO_TEST_SUITE(txindex_tests, *boost::unit_test::disabled())
 
 BOOST_FIXTURE_TEST_CASE(txindex_initial_sync, TestChain100Setup)
 {
