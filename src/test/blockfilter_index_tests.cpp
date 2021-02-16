@@ -20,7 +20,7 @@ using node::BlockAssembler;
 using node::CBlockTemplate;
 using node::IncrementExtraNonce;
 
-BOOST_AUTO_TEST_SUITE(blockfilter_index_tests)
+BOOST_AUTO_TEST_SUITE(blockfilter_index_tests, *boost::unit_test::disabled())
 
 struct BuildChainTestingSetup : public TestChain100Setup {
     CBlock CreateBlock(const CBlockIndex* prev, const std::vector<CMutableTransaction>& txns, const CScript& scriptPubKey);
