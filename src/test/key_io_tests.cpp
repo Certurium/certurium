@@ -17,7 +17,7 @@
 
 extern UniValue read_json(const std::string& jsondata);
 
-BOOST_FIXTURE_TEST_SUITE(key_io_tests, BasicTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(key_io_tests, BasicTestingSetup, *boost::unit_test::disabled())
 
 // Goal: check that parsed keys match test payload
 BOOST_AUTO_TEST_CASE(key_io_valid_parse)

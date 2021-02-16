@@ -33,7 +33,7 @@ RPCHelpMan importwallet();
 static_assert(DEFAULT_TRANSACTION_MINFEE >= DEFAULT_MIN_RELAY_TX_FEE, "wallet minimum fee is smaller than default relay fee");
 static_assert(WALLET_INCREMENTAL_RELAY_FEE >= DEFAULT_INCREMENTAL_RELAY_FEE, "wallet incremental fee is smaller than default incremental relay fee");
 
-BOOST_FIXTURE_TEST_SUITE(wallet_tests, WalletTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(wallet_tests, WalletTestingSetup, *boost::unit_test::disabled())
 
 static std::shared_ptr<CWallet> TestLoadWallet(interfaces::Chain& chain)
 {
