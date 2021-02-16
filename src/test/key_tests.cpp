@@ -29,7 +29,7 @@ static const std::string addr2C = "1CRj2HyM1CXWzHAXLQtiGLyggNT9WQqsDs";
 static const std::string strAddressBad = "1HV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF";
 
 
-BOOST_FIXTURE_TEST_SUITE(key_tests, BasicTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(key_tests, BasicTestingSetup, *boost::unit_test::disabled())
 
 BOOST_AUTO_TEST_CASE(key_test1)
 {

@@ -30,7 +30,7 @@ struct MinerTestingSetup : public RegTestingSetup {
 };
 } // namespace validation_block_tests
 
-BOOST_FIXTURE_TEST_SUITE(validation_block_tests, MinerTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(validation_block_tests, MinerTestingSetup, *boost::unit_test::disabled())
 
 struct TestSubscriber final : public CValidationInterface {
     uint256 m_expected_tip;

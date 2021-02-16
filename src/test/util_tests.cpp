@@ -40,7 +40,7 @@ namespace BCLog {
     std::string LogEscapeMessage(const std::string& str);
 }
 
-BOOST_FIXTURE_TEST_SUITE(util_tests, BasicTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(util_tests, BasicTestingSetup, *boost::unit_test::disabled())
 
 BOOST_AUTO_TEST_CASE(util_datadir)
 {

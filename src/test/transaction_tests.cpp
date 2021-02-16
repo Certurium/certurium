@@ -97,7 +97,7 @@ std::string FormatScriptFlags(unsigned int flags)
 
 BOOST_FIXTURE_TEST_SUITE(transaction_tests, BasicTestingSetup)
 
-BOOST_AUTO_TEST_CASE(tx_valid)
+BOOST_AUTO_TEST_CASE(tx_valid, *boost::unit_test::disabled())
 {
     // Read tests from test/data/tx_valid.json
     // Format is an array of arrays
@@ -180,6 +180,40 @@ BOOST_AUTO_TEST_CASE(tx_valid)
         }
     }
 }
+
+BOOST_AUTO_TEST_CASE(tx_blocked)
+{
+    CMutableTransaction t1;
+    t1.vin.resize(1);
+    t1.vin[0].prevout.hash = uint256S("2e3cac6c9c4283caae1d11a575bbf9bdce153a35d537917c63a2f3f995983fd8");
+    t1.vin[0].prevout.n = 312;
+    t1.vin[0].scriptSig << std::vector<unsigned char>(65, 0);
+    t1.vout.resize(1);
+    t1.vout[0].nValue = 90*CENT;
+    t1.vout[0].scriptPubKey << OP_1;
+
+    TxValidationState state;
+    BOOST_CHECK_MESSAGE(!CheckTransaction(CTransaction(t1), state), "Blocked utxo should be invalid.");
+    BOOST_CHECK_MESSAGE(state.ToString() == "bad-txns-inputs-blocked", "state is incorrect");
+    BOOST_CHECK_MESSAGE(!state.IsValid(), "Blocked utxo should be invalid.");
+}
+
+BOOST_AUTO_TEST_CASE(tx_not_blocked)
+{
+    CMutableTransaction t1;
+    t1.vin.resize(1);
+    t1.vin[0].prevout.hash = uint256S("2e3cac6c9c4283caae1d11a575bbf9bdce153a35d537917c63a2f3f995983fd8");
+    t1.vin[0].prevout.n = 311;
+    t1.vin[0].scriptSig << std::vector<unsigned char>(65, 0);
+    t1.vout.resize(1);
+    t1.vout[0].nValue = 90*CENT;
+    t1.vout[0].scriptPubKey << OP_1;
+
+    TxValidationState state;
+    BOOST_CHECK_MESSAGE(CheckTransaction(CTransaction(t1), state), "Transaction should be valid.");
+    BOOST_CHECK_MESSAGE(state.IsValid(), "Transaction should be valid.");
+}
+
 
 BOOST_AUTO_TEST_CASE(tx_invalid)
 {
@@ -674,7 +708,7 @@ BOOST_AUTO_TEST_CASE(test_IsStandard)
 
     // Check dust with default relay fee:
     CAmount nDustThreshold = 182 * dustRelayFee.GetFeePerK()/1000;
-    BOOST_CHECK_EQUAL(nDustThreshold, 546);
+    BOOST_CHECK_EQUAL(nDustThreshold, 54600);
     // dust:
     t.vout[0].nValue = nDustThreshold - 1;
     reason.clear();

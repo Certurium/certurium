@@ -279,7 +279,7 @@ void Check(const std::string& prv, const std::string& pub, int flags, const std:
 
 }
 
-BOOST_FIXTURE_TEST_SUITE(descriptor_tests, BasicTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(descriptor_tests, BasicTestingSetup, *boost::unit_test::disabled())
 
 BOOST_AUTO_TEST_CASE(descriptor_test)
 {
