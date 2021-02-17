@@ -23,7 +23,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-BOOST_FIXTURE_TEST_SUITE(miner_tests, TestingSetup)
+BOOST_FIXTURE_TEST_SUITE(miner_tests, TestingSetup, *boost::unit_test::disabled())
 
 // BOOST_CHECK_EXCEPTION predicates to check the specific validation error
 class HasReason {

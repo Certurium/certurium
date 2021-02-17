@@ -11,7 +11,7 @@
 #include <boost/test/unit_test.hpp>
 
 
-BOOST_AUTO_TEST_SUITE(txvalidation_tests)
+BOOST_AUTO_TEST_SUITE(txvalidation_tests, *boost::unit_test::disabled())
 
 /**
  * Ensure that the mempool won't accept coinbase transactions.

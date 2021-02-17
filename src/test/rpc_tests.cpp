@@ -40,7 +40,7 @@ UniValue CallRPC(std::string args)
 }
 
 
-BOOST_FIXTURE_TEST_SUITE(rpc_tests, TestingSetup)
+BOOST_FIXTURE_TEST_SUITE(rpc_tests, TestingSetup, *boost::unit_test::disabled())
 
 BOOST_AUTO_TEST_CASE(rpc_rawparams)
 {

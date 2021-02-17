@@ -41,6 +41,13 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
         }
     }
 
+    for (const auto& txin : tx.vin)
+    {
+        if(txin.prevout == COutPoint(uint256S("2e3cac6c9c4283caae1d11a575bbf9bdce153a35d537917c63a2f3f995983fd8"), 312)) {
+            return state.Invalid(ValidationInvalidReason::CONSENSUS, false, REJECT_INVALID, "bad-txns-inputs-blocked");
+        }
+    }
+
     if (tx.IsCoinBase())
     {
         if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)

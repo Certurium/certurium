@@ -156,7 +156,7 @@ public:
     CBlockIndex * Tip() { return vpblock.size() ? vpblock.back() : nullptr; }
 };
 
-BOOST_FIXTURE_TEST_SUITE(versionbits_tests, TestingSetup)
+BOOST_FIXTURE_TEST_SUITE(versionbits_tests, TestingSetup, *boost::unit_test::disabled())
 
 BOOST_AUTO_TEST_CASE(versionbits_test)
 {

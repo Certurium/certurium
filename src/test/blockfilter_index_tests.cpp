@@ -15,7 +15,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(blockfilter_index_tests)
+BOOST_AUTO_TEST_SUITE(blockfilter_index_tests, *boost::unit_test::disabled())
 
 static bool ComputeFilter(BlockFilterType filter_type, const CBlockIndex* block_index,
                           BlockFilter& filter)

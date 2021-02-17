@@ -24,7 +24,7 @@ extern UniValue importmulti(const JSONRPCRequest& request);
 extern UniValue dumpwallet(const JSONRPCRequest& request);
 extern UniValue importwallet(const JSONRPCRequest& request);
 
-BOOST_FIXTURE_TEST_SUITE(wallet_tests, WalletTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(wallet_tests, WalletTestingSetup, *boost::unit_test::disabled())
 
 static void AddKey(CWallet& wallet, const CKey& key)
 {
