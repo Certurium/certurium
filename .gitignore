@@ -3,12 +3,12 @@
 *.exe
 *.pdb
 src/bitcoin
-src/bitcoind
-src/bitcoin-cli
-src/bitcoin-gui
-src/bitcoin-node
-src/bitcoin-tx
-src/bitcoin-wallet
+src/certuriumd
+src/certurium-cli
+src/certurium-gui
+src/certurium-node
+src/certurium-tx
+src/certurium-wallet
 src/test/fuzz/*
 !src/test/fuzz/*.*
 src/test/test_bitcoin
@@ -148,3 +148,4 @@ db4/
 osx_volname
 dist/
 *.background.tiff
+.vscode
