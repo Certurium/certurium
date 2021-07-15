@@ -76,6 +76,8 @@ string strCheckpointWarning;
 // Only descendant of current sync-checkpoint is allowed
 bool ValidateSyncCheckpoint(uint256 hashCheckpoint)
 {
+    if(hashSyncCheckpoint == ArithToUint256(arith_uint256(0)) && hashCheckpoint != ArithToUint256(arith_uint256(0)))
+        return true;
     if (!g_chainman.BlockIndex().count(hashSyncCheckpoint))
         return error("%s: block index missing for current sync-checkpoint %s", __func__, hashSyncCheckpoint.ToString());
     if (!g_chainman.BlockIndex().count(hashCheckpoint))
@@ -173,7 +175,7 @@ bool CheckSyncCheckpoint(const CBlockIndex* pindexNew)
 {
     LOCK(cs_hashSyncCheckpoint);
     assert(pindexNew != NULL);
-    if (pindexNew->nHeight == 0)
+    if (pindexNew->nHeight == 0 || hashSyncCheckpoint == ArithToUint256(arith_uint256(0)))
         return true;
     const uint256& hashBlock = pindexNew->GetBlockHash();
     int nHeight = pindexNew->nHeight;
