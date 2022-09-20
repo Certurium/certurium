@@ -3987,7 +3987,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         CSyncCheckpoint checkpoint;
         vRecv >> checkpoint;
 
-        if (checkpoint.ProcessSyncCheckpoint())
+        if (checkpoint.ProcessSyncCheckpoint(m_chainman))
         {
             // Relay checkpoint
             pfrom.hashCheckpointKnown = checkpoint.hashCheckpoint;

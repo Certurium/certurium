@@ -1106,7 +1106,7 @@ static RPCHelpMan getblock()
 
 // RPC commands related to sync checkpoints
 // get information of sync-checkpoint (first introduced in ppcoin)
-static RPCHelpMan getcheckpoint(const JSONRPCRequest& request)
+static RPCHelpMan getcheckpoint()
 {
     return RPCHelpMan{"getcheckpoint", "Show info of synchronized checkpoint.\n",
                 {},
@@ -1143,7 +1143,7 @@ static RPCHelpMan getcheckpoint(const JSONRPCRequest& request)
    
 }
 
-static RPCHelpMan sendcheckpoint(const JSONRPCRequest& request)
+static RPCHelpMan sendcheckpoint()
 {
     return RPCHelpMan{"sendcheckpoint", "Send a synchronized checkpoint.\n",
                 {
@@ -1166,14 +1166,14 @@ static RPCHelpMan sendcheckpoint(const JSONRPCRequest& request)
     std::string strHash = request.params[0].get_str();
     uint256 hash = uint256S(strHash);
 
-    if (!SendSyncCheckpoint(hash))
-        throw std::runtime_error("Failed to send checkpoint, check log. ");
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(cs_main);
+
+    if (!SendSyncCheckpoint(hash, g_connman.get(), chainman))
+            throw JSONRPCError(RPC_INTERNAL_ERROR, "Could not find block with at least the specified timestamp.");
 
     UniValue result(UniValue::VOBJ);
     CBlockIndex* pindexCheckpoint;
-
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
-    LOCK(cs_main);
 
     result.pushKV("synccheckpoint", hashSyncCheckpoint.ToString().c_str());
     if (chainman.BlockIndex().count(hashSyncCheckpoint))

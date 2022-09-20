@@ -1491,7 +1491,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
             std::optional<ChainstateLoadVerifyError> maybe_verify_error;
 
             uiInterface.InitMessage(_("Checking ACP ...").translated);
-            if (!CheckCheckpointPubKey()) {
+            if (!CheckCheckpointPubKey(chainman.ActiveChainstate())) {
                 strLoadError = _("Checking ACP pubkey failed");
                 break;
             }

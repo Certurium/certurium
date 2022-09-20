@@ -90,8 +90,6 @@ static const size_t DEFAULT_MAXSENDBUFFER    = 1 * 1000;
 
 typedef int64_t NodeId;
 
-extern std::unique_ptr<CConnman> g_connman;
-
 struct AddedNodeInfo
 {
     std::string strAddedNode;
@@ -480,6 +478,8 @@ public:
     const uint64_t nKeyedNetGroup;
     std::atomic_bool fPauseRecv{false};
     std::atomic_bool fPauseSend{false};
+    
+    uint256 hashCheckpointKnown;
 
     bool IsOutboundOrBlockRelayConn() const {
         switch (m_conn_type) {
@@ -965,7 +965,6 @@ public:
     bool fGetAddr{false};
     std::chrono::microseconds m_next_addr_send GUARDED_BY(cs_sendProcessing){0};
     std::chrono::microseconds m_next_local_addr_send GUARDED_BY(cs_sendProcessing){0};
-    uint256 hashCheckpointKnown;
 
     // // List of block ids we still have announce.
     // // There is no final sorting before sending, as they are always sent immediately

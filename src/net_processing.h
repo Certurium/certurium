@@ -34,6 +34,8 @@ struct CNodeStateStats {
     bool m_addr_relay_enabled{false};
 };
 
+class CConnman;
+
 class PeerManager : public CValidationInterface, public NetEventsInterface
 {
 public:

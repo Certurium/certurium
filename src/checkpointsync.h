@@ -10,6 +10,9 @@
 #include <netmessagemaker.h>
 #include <util/system.h>
 #include <arith_uint256.h>
+#include <validation.h>
+
+extern std::unique_ptr<CConnman> g_connman;
 
 class uint256;
 class CBlock;
@@ -24,14 +27,14 @@ extern uint256 hashInvalidCheckpoint;
 extern RecursiveMutex cs_hashSyncCheckpoint;
 extern std::string strCheckpointWarning;
 
-bool WriteSyncCheckpoint(const uint256& hashCheckpoint);
-bool AcceptPendingSyncCheckpoint();
-uint256 AutoSelectSyncCheckpoint();
-bool CheckSyncCheckpoint(const CBlockIndex* pindexNew);
-bool ResetSyncCheckpoint();
-bool CheckCheckpointPubKey();
+bool WriteSyncCheckpoint(const uint256& hashCheckpoint, CChainState& activeChainstate);
+bool AcceptPendingSyncCheckpoint(BlockManager& blockman, CChainState& chainState);
+uint256 AutoSelectSyncCheckpoint(CChain& chainActive);
+bool CheckSyncCheckpoint(const CBlockIndex* pindexNew, BlockManager& blockman, CChain& activeChain);
+bool ResetSyncCheckpoint(CChainState& activeChainstate);
+bool CheckCheckpointPubKey(CChainState& activeChainstate);
 bool SetCheckpointPrivKey(std::string strPrivKey);
-bool SendSyncCheckpoint(uint256 hashCheckpoint);
+bool SendSyncCheckpoint(uint256 hashCheckpoint, CConnman* connman, ChainstateManager& chainman);
 bool SetBestChain(CValidationState& state, CBlockIndex* pindexNew);
 
 // Synchronized checkpoint (introduced first in ppcoin)
@@ -116,7 +119,7 @@ public:
     }
 
     bool CheckSignature();
-    bool ProcessSyncCheckpoint();
+    bool ProcessSyncCheckpoint(ChainstateManager& chainman);
 };
 
 #endif
