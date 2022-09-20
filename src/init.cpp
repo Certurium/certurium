@@ -1487,7 +1487,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
             bool failed_verification = false;
 
             uiInterface.InitMessage(_("Checking ACP ...").translated);
-            if (!CheckCheckpointPubKey()) {
+            if (!CheckCheckpointPubKey(chainman.ActiveChainstate())) {
                 strLoadError = _("Checking ACP pubkey failed");
                 break;
             }

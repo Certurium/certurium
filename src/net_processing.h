@@ -33,6 +33,8 @@ struct CNodeStateStats {
     uint64_t m_addr_rate_limited = 0;
 };
 
+class CConnman;
+
 class PeerManager : public CValidationInterface, public NetEventsInterface
 {
 public:

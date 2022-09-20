@@ -2240,9 +2240,6 @@ void CChainState::UpdateTip(const CBlockIndex* pindexNew)
       FormatISO8601DateTime(pindexNew->GetBlockTime()),
       GuessVerificationProgress(m_params.TxData(), pindexNew), this->CoinsTip().DynamicMemoryUsage() * (1.0 / (1<<20)), this->CoinsTip().GetCacheSize(),
       !warning_messages.empty() ? strprintf(" warning='%s'", warning_messages.original) : "");
-      
-    if (pindexBestHeader->pprev)
-        CheckSyncCheckpoint(pindexBestHeader->GetBlockHash(), pindexBestHeader->pprev);
 }
 
 /** Disconnect m_chain's tip.
@@ -3462,7 +3459,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, Block
         GetMainSignals().NewPoWValidBlock(pindex, pblock);
 
     // Check that the block satisfies synchronized checkpoint
-    if (!IsInitialBlockDownload() && !CheckSyncCheckpoint(pindex))
+    if (!IsInitialBlockDownload() && !CheckSyncCheckpoint(pindex, m_blockman, m_chain))
     {
         pindex->nStatus |= BLOCK_FAILED_VALID;
         setDirtyBlockIndex.insert(pindex);
@@ -3487,7 +3484,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, Block
     CheckBlockIndex();
 
     if (!IsInitialBlockDownload())
-        AcceptPendingSyncCheckpoint();
+        AcceptPendingSyncCheckpoint(m_blockman, *this);
 
     return true;
 }
@@ -3530,7 +3527,7 @@ bool ChainstateManager::ProcessNewBlock(const CChainParams& chainparams, const s
 
     // If responsible for sync-checkpoint send it
     if (!CSyncCheckpoint::strMasterPrivKey.empty())
-        SendSyncCheckpoint(AutoSelectSyncCheckpoint());
+        SendSyncCheckpoint(AutoSelectSyncCheckpoint(ActiveChain()), g_connman.get(), *this);
 
     return true;
 }

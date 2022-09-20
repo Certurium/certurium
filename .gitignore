@@ -1,15 +1,18 @@
 *.tar.gz
 
+.idea/
+.vscode/
+
 *.exe
 *.pdb
-src/bitcoin
-src/bitcoind
-src/bitcoin-cli
-src/bitcoin-gui
-src/bitcoin-node
-src/bitcoin-tx
-src/bitcoin-util
-src/bitcoin-wallet
+src/certurium
+src/certuriumd
+src/certurium-cli
+src/certurium-gui
+src/certurium-node
+src/certurium-tx
+src/certurium-util
+src/certurium-wallet
 src/test/fuzz/fuzz
 src/test/test_bitcoin
 src/qt/test/test_bitcoin-qt
