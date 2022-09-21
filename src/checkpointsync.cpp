@@ -74,7 +74,7 @@ RecursiveMutex cs_hashSyncCheckpoint;
 string strCheckpointWarning;
 
 // Only descendant of current sync-checkpoint is allowed
-bool ValidateSyncCheckpoint(uint256 hashCheckpoint, BlockManager& blockman, CChainState& chainState)
+bool ValidateSyncCheckpoint(uint256 hashCheckpoint, node::BlockManager& blockman, CChainState& chainState)
 {
     if (!blockman.m_block_index.count(hashSyncCheckpoint))
         return error("%s: block index missing for current sync-checkpoint %s", __func__, hashSyncCheckpoint.ToString());
@@ -113,17 +113,17 @@ bool ValidateSyncCheckpoint(uint256 hashCheckpoint, BlockManager& blockman, CCha
     return true;
 }
 
-bool WriteSyncCheckpoint(const uint256& hashCheckpoint, CChainState& activeChainstate)
+bool WriteSyncCheckpoint(const uint256& hashCheckpoint, CChainState& activeChainState)
 {
-    if (!pblocktree->WriteSyncCheckpoint(hashCheckpoint))
+    if (!activeChainState.m_blockman.m_block_tree_db->WriteSyncCheckpoint(hashCheckpoint))
         return error("%s: failed to write to txdb sync checkpoint %s", __func__, hashCheckpoint.ToString());
 
-    activeChainstate.ForceFlushStateToDisk();
+    activeChainState.ForceFlushStateToDisk();
     hashSyncCheckpoint = hashCheckpoint;
     return true;
 }
 
-bool AcceptPendingSyncCheckpoint(BlockManager& blockman, CChainState& chainState)
+bool AcceptPendingSyncCheckpoint(node::BlockManager& blockman, CChainState& chainState)
 {
     LOCK(cs_hashSyncCheckpoint);
     bool havePendingCheckpoint = hashPendingCheckpoint != ArithToUint256(arith_uint256(0)) && blockman.m_block_index.count(hashPendingCheckpoint);
@@ -163,13 +163,13 @@ uint256 AutoSelectSyncCheckpoint(CChain& chainActive)
 {
     // Search backward for a block with specified depth policy
     const CBlockIndex *pindex = chainActive.Tip();
-    while (pindex->pprev && pindex->nHeight + (int)gArgs.GetArg("-checkpointdepth", DEFAULT_AUTOCHECKPOINT) > chainActive.Tip()->nHeight)
+    while (pindex->pprev && pindex->nHeight + (int)gArgs.GetIntArg("-checkpointdepth", DEFAULT_AUTOCHECKPOINT) > chainActive.Tip()->nHeight)
         pindex = pindex->pprev;
     return pindex->GetBlockHash();
 }
 
 // Check against synchronized checkpoint
-bool CheckSyncCheckpoint(const CBlockIndex* pindexNew, BlockManager& blockman, CChain& activeChain)
+bool CheckSyncCheckpoint(const CBlockIndex* pindexNew, node::BlockManager& blockman, CChain& activeChain)
 {
     LOCK(cs_hashSyncCheckpoint);
     assert(pindexNew != NULL);
@@ -216,19 +216,19 @@ bool ResetSyncCheckpoint(CChainState& activeChainstate)
 }
 
 // Verify sync checkpoint master pubkey and reset sync checkpoint if changed
-bool CheckCheckpointPubKey(CChainState& activeChainstate)
+bool CheckCheckpointPubKey(CChainState& activeChainState)
 {
     string strPubKey = "";
     string strMasterPubKey = Params().GetConsensus().checkpointPubKey;
 
-    if (!pblocktree->ReadCheckpointPubKey(strPubKey) || strPubKey != strMasterPubKey)
+    if (!activeChainState.m_blockman.m_block_tree_db->ReadCheckpointPubKey(strPubKey) || strPubKey != strMasterPubKey)
     {
         // write checkpoint master key to db
-        if (!ResetSyncCheckpoint(activeChainstate))
+        if (!ResetSyncCheckpoint(activeChainState))
             return error("%s: failed to reset sync-checkpoint", __func__);
-        if (!pblocktree->WriteCheckpointPubKey(strMasterPubKey))
+        if (!activeChainState.m_blockman.m_block_tree_db->WriteCheckpointPubKey(strMasterPubKey))
             return error("%s: failed to write new checkpoint master key to db", __func__);
-        activeChainstate.ForceFlushStateToDisk();
+        activeChainState.ForceFlushStateToDisk();
     }
 
     return true;
@@ -262,7 +262,7 @@ bool SendSyncCheckpoint(uint256 hashCheckpoint, CConnman* connman, ChainstateMan
     checkpoint.hashCheckpoint = hashCheckpoint;
     CDataStream sMsg(SER_NETWORK, PROTOCOL_VERSION);
     sMsg << (CUnsignedSyncCheckpoint)checkpoint;
-    checkpoint.vchMsg = vector<unsigned char>(sMsg.begin(), sMsg.end());
+    checkpoint.vchMsg = vector<unsigned char>((unsigned char*)&*sMsg.begin(), (unsigned char*)&*sMsg.end());
 
     if (CSyncCheckpoint::strMasterPrivKey.empty())
         return error("%s: Checkpoint master key unavailable.", __func__);

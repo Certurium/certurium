@@ -14,7 +14,7 @@
 
 namespace Checkpoints {
 
-    CBlockIndex* GetLastCheckpoint(const CCheckpointData& data, const BlockManager& blockMan)
+    CBlockIndex* GetLastCheckpoint(const CCheckpointData& data, const node::BlockManager& blockMan)
     {
         const MapCheckpoints& checkpoints = data.mapCheckpoints;
 

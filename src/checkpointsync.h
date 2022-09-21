@@ -28,9 +28,9 @@ extern RecursiveMutex cs_hashSyncCheckpoint;
 extern std::string strCheckpointWarning;
 
 bool WriteSyncCheckpoint(const uint256& hashCheckpoint, CChainState& activeChainstate);
-bool AcceptPendingSyncCheckpoint(BlockManager& blockman, CChainState& chainState);
+bool AcceptPendingSyncCheckpoint(node::BlockManager& blockman, CChainState& chainState);
 uint256 AutoSelectSyncCheckpoint(CChain& chainActive);
-bool CheckSyncCheckpoint(const CBlockIndex* pindexNew, BlockManager& blockman, CChain& activeChain);
+bool CheckSyncCheckpoint(const CBlockIndex* pindexNew, node::BlockManager& blockman, CChain& activeChain);
 bool ResetSyncCheckpoint(CChainState& activeChainstate);
 bool CheckCheckpointPubKey(CChainState& activeChainstate);
 bool SetCheckpointPrivKey(std::string strPrivKey);

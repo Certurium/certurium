@@ -689,13 +689,13 @@ certuriumd_SOURCES = $(bitcoin_daemon_sources) init/bitcoind.cpp
 certuriumd_CPPFLAGS = $(bitcoin_bin_cppflags)
 certuriumd_CXXFLAGS = $(bitcoin_bin_cxxflags)
 certuriumd_LDFLAGS = $(bitcoin_bin_ldflags)
-certuriumd_LDADD = $(LIBBITCOIN_SERVER) $(bitcoin_bin_ldadd)
+certuriumd_LDADD = $(LIBBITCOIN_NODE) $(bitcoin_bin_ldadd)
 
 certurium_node_SOURCES = $(bitcoin_daemon_sources) init/bitcoin-node.cpp
 certurium_node_CPPFLAGS = $(bitcoin_bin_cppflags)
 certurium_node_CXXFLAGS = $(bitcoin_bin_cxxflags)
 certurium_node_LDFLAGS = $(bitcoin_bin_ldflags)
-certurium_node_LDADD = $(LIBBITCOIN_SERVER) $(bitcoin_bin_ldadd) $(LIBBITCOIN_IPC) $(LIBMULTIPROCESS_LIBS)
+certurium_node_LDADD = $(LIBBITCOIN_NODE) $(bitcoin_bin_ldadd) $(LIBBITCOIN_IPC) $(LIBMULTIPROCESS_LIBS)
 
 # certurium-cli binary #
 certurium_cli_SOURCES = bitcoin-cli.cpp
