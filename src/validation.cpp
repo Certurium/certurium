@@ -3677,7 +3677,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, Block
         GetMainSignals().NewPoWValidBlock(pindex, pblock);
 
     // Check that the block satisfies synchronized checkpoint
-    if (!IsInitialBlockDownload() && !CheckSyncCheckpoint(pindex, m_blockman, m_chain))
+    if (!IsInitialBlockDownload() && !CheckSyncCheckpoint(pindex, *this))
     {
         pindex->nStatus |= BLOCK_FAILED_VALID;
         m_blockman.m_dirty_blockindex.insert(pindex);
@@ -3702,7 +3702,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, Block
     CheckBlockIndex();
 
     if (!IsInitialBlockDownload())
-        AcceptPendingSyncCheckpoint(m_blockman, *this);
+        AcceptPendingSyncCheckpoint(*this);
 
     return true;
 }

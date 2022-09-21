@@ -74,22 +74,22 @@ RecursiveMutex cs_hashSyncCheckpoint;
 string strCheckpointWarning;
 
 // Only descendant of current sync-checkpoint is allowed
-bool ValidateSyncCheckpoint(uint256 hashCheckpoint, node::BlockManager& blockman, CChainState& chainState)
+bool ValidateSyncCheckpoint(uint256 hashCheckpoint, CChainState& activeChainState)
 {
-    if (!blockman.m_block_index.count(hashSyncCheckpoint))
+    if (!activeChainState.m_blockman.m_block_index.count(hashSyncCheckpoint))
         return error("%s: block index missing for current sync-checkpoint %s", __func__, hashSyncCheckpoint.ToString());
-    if (!blockman.m_block_index.count(hashCheckpoint))
+    if (!activeChainState.m_blockman.m_block_index.count(hashCheckpoint))
         return error("%s: block index missing for received sync-checkpoint %s", __func__, hashCheckpoint.ToString());
 
-    CBlockIndex* pindexSyncCheckpoint = blockman.m_block_index[hashSyncCheckpoint];
-    CBlockIndex* pindexCheckpointRecv = blockman.m_block_index[hashCheckpoint];
+    CBlockIndex* pindexSyncCheckpoint = activeChainState.m_blockman.m_block_index[hashSyncCheckpoint];
+    CBlockIndex* pindexCheckpointRecv = activeChainState.m_blockman.m_block_index[hashCheckpoint];
 
     if (pindexCheckpointRecv->nHeight <= pindexSyncCheckpoint->nHeight)
     {
         // Received an older checkpoint, trace back from current checkpoint
         // to the same height of the received checkpoint to verify
         // that current checkpoint should be a descendant block
-        if (!chainState.m_chain.Contains(pindexCheckpointRecv))
+        if (!activeChainState.m_chain.Contains(pindexCheckpointRecv))
         {
             hashInvalidCheckpoint = hashCheckpoint;
             return error("%s: new sync-checkpoint %s is conflicting with current sync-checkpoint %s", __func__, hashCheckpoint.ToString(), hashSyncCheckpoint.ToString());
@@ -113,31 +113,31 @@ bool ValidateSyncCheckpoint(uint256 hashCheckpoint, node::BlockManager& blockman
     return true;
 }
 
-bool WriteSyncCheckpoint(const uint256& hashCheckpoint, CChainState& activeChainState)
+bool WriteSyncCheckpoint(const uint256& hashCheckpoint, CChainState& chainState)
 {
-    if (!activeChainState.m_blockman.m_block_tree_db->WriteSyncCheckpoint(hashCheckpoint))
+    if (!chainState.m_blockman.m_block_tree_db->WriteSyncCheckpoint(hashCheckpoint))
         return error("%s: failed to write to txdb sync checkpoint %s", __func__, hashCheckpoint.ToString());
 
-    activeChainState.ForceFlushStateToDisk();
+    chainState.ForceFlushStateToDisk();
     hashSyncCheckpoint = hashCheckpoint;
     return true;
 }
 
-bool AcceptPendingSyncCheckpoint(node::BlockManager& blockman, CChainState& chainState)
+bool AcceptPendingSyncCheckpoint(CChainState& chainState)
 {
     LOCK(cs_hashSyncCheckpoint);
-    bool havePendingCheckpoint = hashPendingCheckpoint != ArithToUint256(arith_uint256(0)) && blockman.m_block_index.count(hashPendingCheckpoint);
+    bool havePendingCheckpoint = hashPendingCheckpoint != ArithToUint256(arith_uint256(0)) && chainState.m_blockman.m_block_index.count(hashPendingCheckpoint);
     if (!havePendingCheckpoint)
         return false;
 
-    if (!ValidateSyncCheckpoint(hashPendingCheckpoint, blockman, chainState))
+    if (!ValidateSyncCheckpoint(hashPendingCheckpoint, chainState))
     {
         hashPendingCheckpoint = ArithToUint256(arith_uint256(0));
         checkpointMessagePending.SetNull();
         return false;
     }
 
-    if (!chainState.m_chain.Contains(blockman.m_block_index[hashPendingCheckpoint]))
+    if (!chainState.m_chain.Contains(chainState.m_blockman.m_block_index[hashPendingCheckpoint]))
         return false;
 
     if (!WriteSyncCheckpoint(hashPendingCheckpoint, chainState))
@@ -159,18 +159,18 @@ bool AcceptPendingSyncCheckpoint(node::BlockManager& blockman, CChainState& chai
 }
 
 // Automatically select a suitable sync-checkpoint
-uint256 AutoSelectSyncCheckpoint(CChain& chainActive)
+uint256 AutoSelectSyncCheckpoint(CChain& chain)
 {
     // Search backward for a block with specified depth policy
-    const CBlockIndex *pindex = chainActive.Tip();
-    while (pindex->pprev && pindex->nHeight + (int)gArgs.GetIntArg("-checkpointdepth", DEFAULT_AUTOCHECKPOINT) > chainActive.Tip()->nHeight)
+    const CBlockIndex *pindex = chain.Tip();
+    while (pindex->pprev && pindex->nHeight + (int)gArgs.GetIntArg("-checkpointdepth", DEFAULT_AUTOCHECKPOINT) > chain.Tip()->nHeight)
         pindex = pindex->pprev;
     return pindex->GetBlockHash();
 }
 
 // Check against synchronized checkpoint
-bool CheckSyncCheckpoint(const CBlockIndex* pindexNew, node::BlockManager& blockman, CChain& activeChain)
-{
+bool CheckSyncCheckpoint(const CBlockIndex* pindexNew, CChainState& chainState)
+{    
     LOCK(cs_hashSyncCheckpoint);
     assert(pindexNew != NULL);
     if (pindexNew->nHeight == 0)
@@ -179,56 +179,56 @@ bool CheckSyncCheckpoint(const CBlockIndex* pindexNew, node::BlockManager& block
     int nHeight = pindexNew->nHeight;
 
     // Checkpoint should always be accepted block
-    assert(blockman.m_block_index.count(hashSyncCheckpoint));
-    const CBlockIndex* pindexSync = blockman.m_block_index[hashSyncCheckpoint];
-    assert(activeChain.Contains(pindexSync));
+    assert(chainState.m_blockman.m_block_index.count(hashSyncCheckpoint));
+    const CBlockIndex* pindexSync = chainState.m_blockman.m_block_index[hashSyncCheckpoint];
+    assert(chainState.m_chain.Contains(pindexSync));
 
     if (nHeight > pindexSync->nHeight)
     {
         // Trace back to same height as sync-checkpoint
         const CBlockIndex* pindex = pindexNew;
-        while (pindex->nHeight > pindexSync->nHeight && !activeChain.Contains(pindex))
+        while (pindex->nHeight > pindexSync->nHeight && !chainState.m_chain.Contains(pindex))
             if (!(pindex = pindex->pprev))
                 return error("%s: pprev null - block index structure failure", __func__);
 
         // At this point we could have:
         // 1. Found block in our blockchain
         // 2. Reached pindexSync->nHeight without finding it
-        if (!activeChain.Contains(pindex))
+        if (!chainState.m_chain.Contains(pindex))
             return error("%s: Only descendants of checkpoint accepted", __func__);
     }
     if (nHeight == pindexSync->nHeight && hashBlock != hashSyncCheckpoint)
         return error("%s: Same height with sync-checkpoint", __func__);
-    if (nHeight < pindexSync->nHeight && !blockman.m_block_index.count(hashBlock))
+    if (nHeight < pindexSync->nHeight && !chainState.m_blockman.m_block_index.count(hashBlock))
         return error("%s: Lower height than sync-checkpoint", __func__);
     return true;
 }
 
 // Reset synchronized checkpoint to the assume valid block
-bool ResetSyncCheckpoint(CChainState& activeChainstate)
+bool ResetSyncCheckpoint(CChainState& chainState)
 {
     LOCK(cs_hashSyncCheckpoint);
 
-    if (!WriteSyncCheckpoint(Params().GetConsensus().defaultAssumeValid, activeChainstate))
+    if (!WriteSyncCheckpoint(Params().GetConsensus().defaultAssumeValid, chainState))
         return error("%s: failed to write sync checkpoint %s", __func__, Params().GetConsensus().defaultAssumeValid.ToString());
 
     return true;
 }
 
 // Verify sync checkpoint master pubkey and reset sync checkpoint if changed
-bool CheckCheckpointPubKey(CChainState& activeChainState)
+bool CheckCheckpointPubKey(CChainState& chainState)
 {
     string strPubKey = "";
     string strMasterPubKey = Params().GetConsensus().checkpointPubKey;
 
-    if (!activeChainState.m_blockman.m_block_tree_db->ReadCheckpointPubKey(strPubKey) || strPubKey != strMasterPubKey)
+    if (!chainState.m_blockman.m_block_tree_db->ReadCheckpointPubKey(strPubKey) || strPubKey != strMasterPubKey)
     {
         // write checkpoint master key to db
-        if (!ResetSyncCheckpoint(activeChainState))
+        if (!ResetSyncCheckpoint(chainState))
             return error("%s: failed to reset sync-checkpoint", __func__);
-        if (!activeChainState.m_blockman.m_block_tree_db->WriteCheckpointPubKey(strMasterPubKey))
+        if (!chainState.m_blockman.m_block_tree_db->WriteCheckpointPubKey(strMasterPubKey))
             return error("%s: failed to write new checkpoint master key to db", __func__);
-        activeChainState.ForceFlushStateToDisk();
+        chainState.ForceFlushStateToDisk();
     }
 
     return true;
@@ -312,7 +312,7 @@ bool CSyncCheckpoint::ProcessSyncCheckpoint(ChainstateManager& chainman)
         return false;
     }
 
-    if (!ValidateSyncCheckpoint(hashCheckpoint, chainman.m_blockman, chainman.ActiveChainstate()))
+    if (!ValidateSyncCheckpoint(hashCheckpoint, chainman.ActiveChainstate()))
         return false;
 
     bool pass = chainman.ActiveChain().Contains(chainman.BlockIndex()[hashCheckpoint]);

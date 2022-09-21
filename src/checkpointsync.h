@@ -27,12 +27,12 @@ extern uint256 hashInvalidCheckpoint;
 extern RecursiveMutex cs_hashSyncCheckpoint;
 extern std::string strCheckpointWarning;
 
-bool WriteSyncCheckpoint(const uint256& hashCheckpoint, CChainState& activeChainstate);
-bool AcceptPendingSyncCheckpoint(node::BlockManager& blockman, CChainState& chainState);
-uint256 AutoSelectSyncCheckpoint(CChain& chainActive);
-bool CheckSyncCheckpoint(const CBlockIndex* pindexNew, node::BlockManager& blockman, CChain& activeChain);
-bool ResetSyncCheckpoint(CChainState& activeChainstate);
-bool CheckCheckpointPubKey(CChainState& activeChainstate);
+bool WriteSyncCheckpoint(const uint256& hashCheckpoint, CChainState& chainState);
+bool AcceptPendingSyncCheckpoint(CChainState& chainState);
+uint256 AutoSelectSyncCheckpoint(CChain& chain);
+bool CheckSyncCheckpoint(const CBlockIndex* pindexNew, CChainState& chainState);
+bool ResetSyncCheckpoint(CChainState& chainState);
+bool CheckCheckpointPubKey(CChainState& chainState);
 bool SetCheckpointPrivKey(std::string strPrivKey);
 bool SendSyncCheckpoint(uint256 hashCheckpoint, CConnman* connman, ChainstateManager& chainman);
 bool SetBestChain(CValidationState& state, CBlockIndex* pindexNew);
