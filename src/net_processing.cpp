@@ -3862,7 +3862,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         {
             // Relay checkpoint
             pfrom.hashCheckpointKnown = checkpoint.hashCheckpoint;
-            m_connman->ForEachNode([checkpoint](CNode* pnode) {
+            m_connman.ForEachNode([checkpoint](CNode* pnode) {
                 checkpoint.RelayTo(pnode);
             });
         }

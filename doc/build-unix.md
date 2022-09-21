@@ -156,7 +156,7 @@ SQLite is required for the descriptor wallet:
 
     sudo dnf install sqlite-devel
 
-To build Bitcoin Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
+To build Certurium Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
 
 Optional port mapping libraries (see: `--with-miniupnpc`, `--enable-upnp-default`, and `--with-natpmp`, `--enable-natpmp-default`):
 
@@ -222,7 +222,7 @@ like so:
 
 from the root of the repository.
 
-Otherwise, you can build Bitcoin Core from self-compiled [depends](/depends/README.md).
+Otherwise, you can build Certurium Core from self-compiled [depends](/depends/README.md).
 
 **Note**: You only need Berkeley DB if the wallet is enabled (see [*Disable-wallet mode*](#disable-wallet-mode)).
 
