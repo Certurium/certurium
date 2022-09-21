@@ -74,22 +74,22 @@ RecursiveMutex cs_hashSyncCheckpoint;
 string strCheckpointWarning;
 
 // Only descendant of current sync-checkpoint is allowed
-bool ValidateSyncCheckpoint(uint256 hashCheckpoint, CChainState& activeChainState)
+bool ValidateSyncCheckpoint(uint256 hashCheckpoint, CChainState& chainState)
 {
-    if (!activeChainState.m_blockman.m_block_index.count(hashSyncCheckpoint))
+    if (!chainState.m_blockman.m_block_index.count(hashSyncCheckpoint))
         return error("%s: block index missing for current sync-checkpoint %s", __func__, hashSyncCheckpoint.ToString());
-    if (!activeChainState.m_blockman.m_block_index.count(hashCheckpoint))
+    if (!chainState.m_blockman.m_block_index.count(hashCheckpoint))
         return error("%s: block index missing for received sync-checkpoint %s", __func__, hashCheckpoint.ToString());
 
-    CBlockIndex* pindexSyncCheckpoint = activeChainState.m_blockman.m_block_index[hashSyncCheckpoint];
-    CBlockIndex* pindexCheckpointRecv = activeChainState.m_blockman.m_block_index[hashCheckpoint];
+    CBlockIndex* pindexSyncCheckpoint = chainState.m_blockman.m_block_index[hashSyncCheckpoint];
+    CBlockIndex* pindexCheckpointRecv = chainState.m_blockman.m_block_index[hashCheckpoint];
 
     if (pindexCheckpointRecv->nHeight <= pindexSyncCheckpoint->nHeight)
     {
         // Received an older checkpoint, trace back from current checkpoint
         // to the same height of the received checkpoint to verify
         // that current checkpoint should be a descendant block
-        if (!activeChainState.m_chain.Contains(pindexCheckpointRecv))
+        if (!chainState.m_chain.Contains(pindexCheckpointRecv))
         {
             hashInvalidCheckpoint = hashCheckpoint;
             return error("%s: new sync-checkpoint %s is conflicting with current sync-checkpoint %s", __func__, hashCheckpoint.ToString(), hashSyncCheckpoint.ToString());
