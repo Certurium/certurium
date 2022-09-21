@@ -47,7 +47,6 @@
 //
 
 #include <chainparams.h>
-#include <checkpoints.h>
 #include <checkpointsync.h>
 
 #include <key.h>

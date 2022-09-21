@@ -122,7 +122,6 @@ BITCOIN_CORE_H = \
   chainparams.h \
   chainparamsbase.h \
   chainparamsseeds.h \
-  checkpoints.h \
   checkpointsync.h \
   checkqueue.h \
   clientversion.h \
@@ -333,7 +332,6 @@ libbitcoin_node_a_SOURCES = \
   blockencodings.cpp \
   blockfilter.cpp \
   chain.cpp \
-  checkpoints.cpp \
   checkpointsync.cpp \
   consensus/tx_verify.cpp \
   dbwrapper.cpp \
@@ -713,7 +711,7 @@ certurium_cli_LDADD = \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO)
 
-certurium_cli_LDADD += $(BOOST_LIBS) $(EVENT_LIBS)
+certurium_cli_LDADD += $(EVENT_LIBS)
 #
 
 # certurium-tx binary #
@@ -733,8 +731,6 @@ certurium_tx_LDADD = \
   $(LIBBITCOIN_CONSENSUS) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBSECP256K1)
-
-certurium_tx_LDADD += $(BOOST_LIBS)
 #
 
 # bitcoin-wallet binary #

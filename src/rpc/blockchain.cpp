@@ -8,7 +8,6 @@
 #include <blockfilter.h>
 #include <chain.h>
 #include <chainparams.h>
-#include <checkpoints.h>
 #include <checkpointsync.h>
 #include <coins.h>
 #include <consensus/amount.h>

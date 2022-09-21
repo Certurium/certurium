@@ -14,7 +14,6 @@
 #include <blockfilter.h>
 #include <chain.h>
 #include <chainparams.h>
-#include <checkpoints.h>
 #include <checkpointsync.h>
 #include <compat/sanity.h>
 #include <consensus/amount.h>
