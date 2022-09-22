@@ -1133,8 +1133,8 @@ static RPCHelpMan getcheckpoint()
         result.pushKV("height", pindexCheckpoint->nHeight);
         result.pushKV("timestamp", (boost::int64_t) pindexCheckpoint->GetBlockTime());
     }
-    if (gArgs.IsArgSet("-checkpointkey"))
-        result.pushKV("checkpointmaster", true);
+    
+    result.pushKV("checkpointmaster", gArgs.IsArgSet("-checkpointkey"));
 
     return result;
 },
@@ -1181,8 +1181,8 @@ static RPCHelpMan sendcheckpoint()
         result.pushKV("height", pindexCheckpoint->nHeight);
         result.pushKV("timestamp", (boost::int64_t) pindexCheckpoint->GetBlockTime());
     }
-    if (gArgs.IsArgSet("-checkpointkey"))
-        result.pushKV("checkpointmaster", true);
+    
+    result.pushKV("checkpointmaster", gArgs.IsArgSet("-checkpointkey"));
 
     return result;
 },
