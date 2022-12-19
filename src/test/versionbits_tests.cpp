@@ -182,7 +182,7 @@ public:
     CBlockIndex* Tip() { return vpblock.empty() ? nullptr : vpblock.back(); }
 };
 
-BOOST_FIXTURE_TEST_SUITE(versionbits_tests, BasicTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(versionbits_tests, BasicTestingSetup, *boost::unit_test::disabled())
 
 BOOST_AUTO_TEST_CASE(versionbits_test)
 {

@@ -38,6 +38,8 @@ struct CNodeStateStats {
     int64_t presync_height{-1};
 };
 
+class CConnman;
+
 class PeerManager : public CValidationInterface, public NetEventsInterface
 {
 public:

@@ -18,6 +18,7 @@
 #include <blockfilter.h>
 #include <chain.h>
 #include <chainparams.h>
+#include <checkpointsync.h>
 #include <consensus/amount.h>
 #include <deploymentstatus.h>
 #include <fs.h>
@@ -127,6 +128,8 @@ using node::nPruneTarget;
 
 static const bool DEFAULT_PROXYRANDOMIZE = true;
 static const bool DEFAULT_REST_ENABLE = false;
+
+std::unique_ptr<CConnman> g_connman;
 
 #ifdef WIN32
 // Win32 LevelDB doesn't use filedescriptors, and the ones used for
@@ -450,6 +453,7 @@ void SetupServerArgs(ArgsManager& argsman)
                  strprintf("Maintain an index of compact filters by block (default: %s, values: %s).", DEFAULT_BLOCKFILTERINDEX, ListBlockFilterTypes()) +
                  " If <type> is not supplied or if <type> = 1, indexes for all known types are enabled.",
                  ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    gArgs.AddArg("-checkpointkey", "ACP private key", 0, OptionsCategory::OPTIONS);
 
     argsman.AddArg("-addnode=<ip>", strprintf("Add a node to connect to and attempt to keep the connection open (see the addnode RPC help for more info). This option can be specified multiple times to add multiple nodes; connections are limited to %u at a time and are counted separately from the -maxconnections limit.", MAX_ADDNODE_CONNECTIONS), ArgsManager::ALLOW_ANY | ArgsManager::NETWORK_ONLY, OptionsCategory::CONNECTION);
     argsman.AddArg("-asmap=<file>", strprintf("Specify asn mapping used for bucketing of the peers (default: %s). Relative paths will be prefixed by the net-specific datadir location.", DEFAULT_ASMAP_FILENAME), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
@@ -822,6 +826,10 @@ bool AppInitParameterInteraction(const ArgsManager& args, bool use_syscall_sandb
     const CChainParams& chainparams = Params();
     // ********************************************************* Step 2: parameter interactions
 
+#if defined (USE_ASM)
+    nNeoScryptOptions |= 0x1000;
+#endif
+
     // also see: InitParameterInteraction()
 
     // Error if network-specific options (-addnode, -connect, etc) are
@@ -1006,6 +1014,12 @@ bool AppInitParameterInteraction(const ArgsManager& args, bool use_syscall_sandb
         if (args.GetBoolArg("-txindex", DEFAULT_TXINDEX)) {
             return InitError(_("-reindex-chainstate option is not compatible with -txindex. Please temporarily disable txindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes."));
         }
+    }
+
+    if (gArgs.IsArgSet("-checkpointkey")) // Checkpoint master priv key
+    {
+        if (!SetCheckpointPrivKey(gArgs.GetArg("-checkpointkey", "")))
+            return InitError(_("Unable to sign checkpoint, wrong checkpointkey?"));
     }
 
 #if defined(USE_SYSCALL_SANDBOX)
@@ -1250,6 +1264,8 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                                               GetRand<uint64_t>(),
                                               *node.addrman, *node.netgroupman, args.GetBoolArg("-networkactive", true));
 
+    g_connman = std::unique_ptr<CConnman>(node.connman.get());
+
     assert(!node.fee_estimator);
     // Don't initialize fee estimation with old data if we don't relay transactions,
     // as they would never get updated.
@@ -1446,6 +1462,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
         };
 
         uiInterface.InitMessage(_("Loading block index…").translated);
+        
         const auto load_block_index_start_time{SteadyClock::now()};
         auto catch_exceptions = [](auto&& f) {
             try {
@@ -1455,8 +1472,15 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                 return std::make_tuple(node::ChainstateLoadStatus::FAILURE, _("Error opening block database"));
             }
         };
+
         auto [status, error] = catch_exceptions([&]{ return LoadChainstate(chainman, cache_sizes, options); });
-        if (status == node::ChainstateLoadStatus::SUCCESS) {
+
+        if (status == node::ChainstateLoadStatus::SUCCESS) {        
+            uiInterface.InitMessage(_("Checking ACP ...").translated);
+            if (!CheckCheckpointPubKey(chainman.ActiveChainstate())) {
+                return InitError(_("Checking ACP pubkey failed"));
+            }
+
             uiInterface.InitMessage(_("Verifying blocks…").translated);
             if (chainman.m_blockman.m_have_pruned && options.check_blocks > MIN_BLOCKS_TO_KEEP) {
                 LogPrintfCategory(BCLog::PRUNE, "pruned datadir may not have more than %d blocks; only checking available blocks\n",

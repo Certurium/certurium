@@ -87,6 +87,9 @@ ArgsManager gArgs;
 
 /** Mutex to protect dir_locks. */
 static GlobalMutex cs_dir_locks;
+
+unsigned int nNeoScryptOptions = 0;
+
 /** A map that contains all the currently held directory locks. After
  * successful locking, these will be held here until the global destructor
  * cleans them up and thus automatically unlocks them, or ReleaseDirectoryLocks
@@ -861,7 +864,7 @@ fs::path GetDefaultDataDir()
     // Unix-like: ~/.bitcoin
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Bitcoin";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Certurium";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -870,11 +873,11 @@ fs::path GetDefaultDataDir()
     else
         pathRet = fs::path(pszHome);
 #ifdef MAC_OSX
-    // macOS
-    return pathRet / "Library/Application Support/Bitcoin";
+    // Mac
+    return pathRet / "Library/Application Support/Certurium";
 #else
-    // Unix-like
-    return pathRet / ".bitcoin";
+    // Unix
+    return pathRet / ".certurium";
 #endif
 #endif
 }

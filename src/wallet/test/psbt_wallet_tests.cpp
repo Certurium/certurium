@@ -12,7 +12,7 @@
 #include <wallet/test/wallet_test_fixture.h>
 
 namespace wallet {
-BOOST_FIXTURE_TEST_SUITE(psbt_wallet_tests, WalletTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(psbt_wallet_tests, WalletTestingSetup, *boost::unit_test::disabled())
 
 static void import_descriptor(CWallet& wallet, const std::string& descriptor)
     EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)

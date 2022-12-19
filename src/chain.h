@@ -20,7 +20,7 @@
  * Maximum amount of time that a block timestamp is allowed to exceed the
  * current network-adjusted time before the block will be accepted.
  */
-static constexpr int64_t MAX_FUTURE_BLOCK_TIME = 2 * 60 * 60;
+static constexpr  int64_t MAX_FUTURE_BLOCK_TIME = 5 * 60;
 
 /**
  * Timestamp window used as a grace period by code that compares external
@@ -180,8 +180,8 @@ public:
     //! Note: this value is faked during UTXO snapshot load to ensure that
     //! LoadBlockIndex() will load index entries for blocks that we lack data for.
     //! @sa ActivateSnapshot
-    unsigned int nTx{0};
 
+    unsigned int nTx{0};
     //! (memory only) Number of transactions in the chain up to and including this block.
     //! This value will be non-zero only if and only if transactions for this block and all its parents are available.
     //! Change to 64-bit type before 2024 (assuming worst case of 60 byte transactions).
